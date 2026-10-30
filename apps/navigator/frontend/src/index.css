@@ -165,3 +165,36 @@ button:disabled,
   border: 1px solid #f0b429;
   color: #7c5e10;
 }
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  margin-bottom: 0.75rem;
+}
+
+.filters input[type='number'] {
+  width: 6rem;
+}
+
+.count {
+  color: #52606d;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.hcp-id {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.85em;
+  color: #52606d;
+}
+
+td.score {
+  font-weight: 600;
+  text-align: right;
+}
+
+td.reason {
+  color: #3e4c59;
+  font-size: 0.9em;
+}

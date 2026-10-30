@@ -15,6 +15,14 @@ const reps = [
   { rep_id: 'R002', rep_name: 'Hugo Rossi', territory_id: 'T002', region: 'East', hire_date: '2023-09-09' },
 ]
 
+const emptyHcpList = {
+  rep: { rep_id: 'R002', rep_name: 'Hugo Rossi', territory_id: 'T002' },
+  territory: { territory_id: 'T002', territory_name: 'East-01', region: 'East' },
+  as_of: '2025-09-29',
+  count: 0,
+  hcps: [],
+}
+
 function jsonResponse(body: unknown, status = 200) {
   return { ok: status < 400, status, json: async () => body } as Response
 }
@@ -22,8 +30,9 @@ function jsonResponse(body: unknown, status = 200) {
 export function mockApi(routes: Record<string, unknown>) {
   return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
     const url = String(input)
-    for (const [suffix, body] of Object.entries(routes)) {
-      if (url.includes(suffix)) return jsonResponse(body)
+    const path = new URL(url, 'http://localhost').pathname.replace(/^\/api/, '')
+    for (const [route, body] of Object.entries(routes)) {
+      if (path === route) return jsonResponse(body)
     }
     return jsonResponse({ detail: `unexpected fetch ${url}` }, 404)
   })
@@ -49,13 +58,14 @@ describe('App', () => {
   })
 
   it('shows the selected rep and territory in the status bar', async () => {
-    mockApi({ '/health': health, '/reps': reps })
+    mockApi({ '/health': health, '/reps': reps, '/reps/R002/hcps': emptyHcpList })
     render(<App />)
     await screen.findByText('API ok')
 
     await userEvent.selectOptions(screen.getByLabelText('Rep'), 'R002')
 
     expect(screen.getByText(/Hugo Rossi · territory T002 \(East\)/)).toBeInTheDocument()
+    expect(await screen.findByText('0 HCPs in T002 East-01, as of 2025-09-29')).toBeInTheDocument()
   })
 
   it('reports when the API is unreachable', async () => {

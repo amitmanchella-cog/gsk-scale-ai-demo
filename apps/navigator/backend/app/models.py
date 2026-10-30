@@ -46,3 +46,31 @@ class ScoreResult(BaseModel):
     score: int
     reason: str
     factors: list[ScoreFactor]
+
+
+class HcpView(BaseModel):
+    hcp_id: str
+    hcp_name: str
+    specialty: str
+    segment: str
+    territory_id: str
+    last_visit_date: date | None
+    days_since_last_visit: int | None
+    open_follow_ups: int
+    score: int
+    reason: str
+    factors: list[ScoreFactor]
+
+
+class RepSummary(BaseModel):
+    rep_id: str
+    rep_name: str
+    territory_id: str
+
+
+class HcpListResponse(BaseModel):
+    rep: RepSummary
+    territory: Territory
+    as_of: date
+    count: int
+    hcps: list[HcpView]
