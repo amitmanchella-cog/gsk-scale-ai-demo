@@ -104,7 +104,7 @@ Fallbacks: no session 90 s after the re-run goes red → open the PR A/B session
 
 Use when the audience includes QA / CSV owners; slot it between UC4 and UC3 (the 30-minute run becomes 38). Synthetic data only.
 
-Tabs: MBA-3680 https://cog-gtm.atlassian.net/browse/MBA-3680 · DeepWiki https://deepwiki.com/amitmanchella-cog/gsk-scale-ai-demo · `docs/gxp/ESTATE_MAP.md` · `docs/gxp/baseline/` · playbook <<PLAYBOOK_URL>> · four fleet sessions + PRs (URS/FS/DRP/CCR-NAV-001) · QA-reviewed PR <<PR_QA>> · Automation <<AUTOMATION_URL>> (disabled draft).
+Tabs: MBA-3680 https://cog-gtm.atlassian.net/browse/MBA-3680 · Devin Wiki https://devin-gtm.devinenterprise.com/wiki/amitmanchella-cog/gsk-scale-ai-demo (DeepWiki https://deepwiki.com/amitmanchella-cog/gsk-scale-ai-demo) · `docs/gxp/ESTATE_MAP.md` · `docs/gxp/baseline/` · playbook (org playbook pending approval card — versioned source `docs/gxp/PLAYBOOK_gxp_controlled_document_from_change.md`) · four fleet sessions + PRs (URS/FS/DRP/CCR-NAV-001) · QA-reviewed PR https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18 (URS-NAV-001, QA comment https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18#issuecomment-6524740512) · Automation (Automation created disabled, pending approval card — prompt `docs/gxp/automation/devin_automation_prompt.md`) (disabled draft).
 
 | Minute | Beat | Key click | One line to say |
 |---|---|---|---|
@@ -145,5 +145,5 @@ Fallbacks: DeepWiki checkpoint → ESTATE_MAP.md · a session still running → 
 | UC3 PRs | #1 supply_api · #3 A · #4 B · #5 C (keep red) · #7 doc |
 | Automation | https://devin-gtm.devinenterprise.com/automations/b09f21a5803c4fb69d049070a961ef94 |
 | UC2 parent session / fleet | https://devin-gtm.devinenterprise.com/sessions/14340a70d82941c791bb3f0aebb05ad2 · URS https://devin-gtm.devinenterprise.com/sessions/9b6d5495414a46569c148547fe272f38 · FS https://devin-gtm.devinenterprise.com/sessions/1e49508fe65c4e55929ae31a351591c3 · DRP https://devin-gtm.devinenterprise.com/sessions/0d79cc7b00ed4b6d8b27d96e6ee16bf3 · CCR https://devin-gtm.devinenterprise.com/sessions/dbf21b4a44154051a6d06e3a3071769a |
-| UC2 PRs / playbook / Automation | parent <<PR_PARENT>> · fleet <<PR_URS>> · <<PR_FS>> · <<PR_DRP>> · <<PR_CCR>> · playbook <<PLAYBOOK_URL>> · Automation <<AUTOMATION_URL>> · Jira MBA-3680 |
+| UC2 PRs / playbook / Automation | parent <<PR_PARENT>> · fleet https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18 · https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/17 · https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/20 · https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/19 · playbook (org playbook pending approval card — versioned source `docs/gxp/PLAYBOOK_gxp_controlled_document_from_change.md`) · Automation (Automation created disabled, pending approval card — prompt `docs/gxp/automation/devin_automation_prompt.md`) · Jira MBA-3680 |
 | Orchestrating session | https://devin-gtm.devinenterprise.com/sessions/0f8f8aee7bf3446baaadce42f0a9f093 |

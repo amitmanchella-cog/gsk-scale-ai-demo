@@ -4,7 +4,7 @@
 > Devin is managed infrastructure and governance (playbooks, Automations, ACU caps) that complements GSK's agentic
 > factory: it maps the estate, drafts controlled documents per change and keeps them current, while humans approve.
 
-DeepWiki view of the same estate: https://deepwiki.com/amitmanchella-cog/gsk-scale-ai-demo
+Wiki view of the same estate: Devin Wiki https://devin-gtm.devinenterprise.com/wiki/amitmanchella-cog/gsk-scale-ai-demo (generated 2026-10-30) · public DeepWiki https://deepwiki.com/amitmanchella-cog/gsk-scale-ai-demo
 
 ## 1. Repositories
 
@@ -18,7 +18,7 @@ DeepWiki view of the same estate: https://deepwiki.com/amitmanchella-cog/gsk-sca
 | SYS code | System | Path | GAMP 5 | GxP impact | Components | CI job |
 |---|---|---|---|---|---|---|
 | SUP | Clinical Supply Forecast API | `services/supply_api` | 5 | Indirect (clinical supply planning) | FastAPI app `app/main.py` (9 endpoints), `app/forecast.py` (moving average, linear trend), `app/dates.py` (timezone-aware parsing, site-local dates), `app/data.py` (seed-42 synthetic data: 8 sites, 6 products, 26 weeks), `app/models.py`; 34 pytest tests | `python` (ruff + pytest) |
-| NAV | Field Force Navigator | `apps/navigator` | 5 | Indirect (HCP interaction records, compliance-relevant) | Backend FastAPI `backend/app/main.py` (`/health`, `/territories`, `/reps`), `backend/app/data.py` (reads UC1 parquet from `data/`, `NAVIGATOR_DATA_DIR`), `backend/app/models.py`; frontend React/Vite `frontend/src/App.tsx`; 9 backend + 2 frontend tests | `python`, `frontend` (lint, vitest, build) |
+| NAV | Field Force Navigator | `apps/navigator` | 5 | Indirect (HCP interaction records, compliance-relevant) | Backend FastAPI `backend/app/main.py` (`/health`, `/territories`, `/reps`), `backend/app/data.py` (reads UC1 parquet from `data/`, `NAVIGATOR_DATA_DIR`), `backend/app/models.py`; frontend React/Vite `frontend/src/App.tsx`; 9 backend + 2 frontend tests | `python`, `navigator-frontend` (lint, vitest, build) |
 
 Upstream data dependency: NAV reads the curated tables produced by UC1 (`pipelines/territory_kpis`, `data/*.parquet`).
 

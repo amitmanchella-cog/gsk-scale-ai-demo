@@ -14,12 +14,12 @@ managed infrastructure and governance (playbooks, Automations, ACU caps) that co
 ## Pre-demo checklist (do this the day before)
 
 1. Open the estate map and baseline on the parent PR <<PR_PARENT>> (or `main` if merged) and skim
-   [`docs/gxp/ESTATE_MAP.md`](https://github.com/amitmanchella-cog/gsk-scale-ai-demo/blob/<<BASE_REF>>/docs/gxp/ESTATE_MAP.md).
+   [`docs/gxp/ESTATE_MAP.md`](https://github.com/amitmanchella-cog/gsk-scale-ai-demo/blob/devin/1793368744-uc2-gxp-baseline/docs/gxp/ESTATE_MAP.md).
 2. Open DeepWiki https://deepwiki.com/amitmanchella-cog/gsk-scale-ai-demo and confirm it renders the repo
-   (indexing was triggered for this demo). If it shows "not indexed" or a checkpoint page, use the Devin Wiki page for
-   the repo from the Devin webapp instead (same content), or skip to step 3 of the flow and show the estate map.
-3. Confirm the four fleet PRs are open and green (tab table) and that the QA review comment is on <<PR_QA>>.
-4. Confirm the playbook page <<PLAYBOOK_URL>> loads and the Automation <<AUTOMATION_URL>> shows **Disabled** (it is
+   and the Devin Wiki https://devin-gtm.devinenterprise.com/wiki/amitmanchella-cog/gsk-scale-ai-demo (generated for this demo on 2026-10-30). Present the Devin Wiki; public DeepWiki
+   returned a bot checkpoint (HTTP 429) during the build. If neither loads, show the estate map (tab 3).
+3. Confirm the four fleet PRs are open and green (tab table) and that the QA review comment is on https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18 (URS-NAV-001, QA comment https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18#issuecomment-6524740512).
+4. Confirm the playbook page (org playbook pending approval card — versioned source `docs/gxp/PLAYBOOK_gxp_controlled_document_from_change.md`) loads and the Automation (Automation created disabled, pending approval card — prompt `docs/gxp/automation/devin_automation_prompt.md`) shows **Disabled** (it is
    shown, not fired, in the demo).
 5. Optional live beat: in the Devin webapp, start one extra session with the playbook (tab 5), prompt "DOC-ID FS-SUP-001,
    type FS, system supply_api/SUP, change PR #1" (fills the FS gap in ESTATE_MAP §4). Not required — the four
@@ -32,17 +32,18 @@ managed infrastructure and governance (playbooks, Automations, ACU caps) that co
 | # | Tab | URL |
 |---|---|---|
 | 1 | Change ticket MBA-3680 (Navigator v0.1, synthetic) | https://cog-gtm.atlassian.net/browse/MBA-3680 |
-| 2 | DeepWiki — the validated estate | https://deepwiki.com/amitmanchella-cog/gsk-scale-ai-demo |
-| 3 | Estate map | https://github.com/amitmanchella-cog/gsk-scale-ai-demo/blob/<<BASE_REF>>/docs/gxp/ESTATE_MAP.md |
-| 4 | Baseline (templates, SOPs, approved docs) | https://github.com/amitmanchella-cog/gsk-scale-ai-demo/tree/<<BASE_REF>>/docs/gxp/baseline |
-| 5 | Playbook "GxP controlled document from change" | <<PLAYBOOK_URL>> |
+| 2 | Devin Wiki — the validated estate (generated for this demo) | https://devin-gtm.devinenterprise.com/wiki/amitmanchella-cog/gsk-scale-ai-demo |
+| 2b | Public DeepWiki (same repo; may show a checkpoint) | https://deepwiki.com/amitmanchella-cog/gsk-scale-ai-demo |
+| 3 | Estate map | https://github.com/amitmanchella-cog/gsk-scale-ai-demo/blob/devin/1793368744-uc2-gxp-baseline/docs/gxp/ESTATE_MAP.md |
+| 4 | Baseline (templates, SOPs, approved docs) | https://github.com/amitmanchella-cog/gsk-scale-ai-demo/tree/devin/1793368744-uc2-gxp-baseline/docs/gxp/baseline |
+| 5 | Playbook "GxP controlled document from change" | (org playbook pending approval card — versioned source `docs/gxp/PLAYBOOK_gxp_controlled_document_from_change.md`) |
 | 6 | Fleet session — URS-NAV-001 | https://devin-gtm.devinenterprise.com/sessions/9b6d5495414a46569c148547fe272f38 |
 | 7 | Fleet session — FS-NAV-001 | https://devin-gtm.devinenterprise.com/sessions/1e49508fe65c4e55929ae31a351591c3 |
 | 8 | Fleet session — DRP-NAV-001 | https://devin-gtm.devinenterprise.com/sessions/0d79cc7b00ed4b6d8b27d96e6ee16bf3 |
 | 9 | Fleet session — CCR-NAV-001 | https://devin-gtm.devinenterprise.com/sessions/dbf21b4a44154051a6d06e3a3071769a |
-| 10 | Fleet PRs (URS · FS · DRP · CCR) | <<PR_URS>> · <<PR_FS>> · <<PR_DRP>> · <<PR_CCR>> |
-| 11 | QA-reviewed PR (the one you open) | <<PR_QA>> |
-| 12 | Automation (disabled draft) | <<AUTOMATION_URL>> |
+| 10 | Fleet PRs (URS · FS · DRP · CCR) | https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18 · https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/17 · https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/20 · https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/19 |
+| 11 | QA-reviewed PR (the one you open) | https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18 (URS-NAV-001, QA comment https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18#issuecomment-6524740512) |
+| 12 | Automation (disabled draft) | (Automation created disabled, pending approval card — prompt `docs/gxp/automation/devin_automation_prompt.md`) |
 | 13 | The change itself: PR #8 Navigator scaffold | https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/8 |
 
 ## Main flow (8 minutes)
@@ -50,7 +51,7 @@ managed infrastructure and governance (playbooks, Automations, ACU caps) that co
 | Time | Tab | Action | Say | Note |
 |---|---|---|---|---|
 | 0:00 | 1 — MBA-3680 | Show the ticket | "Every change to a validated system needs controlled documents — URS, design spec, DR plan, change-control record. Today people write them by hand: **a single URS is 35–40 hours**, and the documents drift from the code the day after sign-off." | **Step 1 — frame the problem.** Synthetic ticket: Navigator v0.1 entering the validated estate via PR #8. |
-| 1:00 | 2 — DeepWiki | Scroll the repo overview / architecture | "First Devin maps the estate: DeepWiki has indexed the repo — the two validated systems, their components, endpoints and tests." | **Step 2 — map the estate.** Fallback: Devin Wiki page or tab 3. |
+| 1:00 | 2 — Devin Wiki | Scroll the repo overview / architecture | "First Devin maps the estate: DeepWiki has indexed the repo — the two validated systems, their components, endpoints and tests." | **Step 2 — map the estate.** Fallback: Devin Wiki page or tab 3. |
 | 1:30 | 3 — ESTATE_MAP.md | Scroll to §4 *exist vs missing* | "This is the map Devin wrote: supply_api has an approved URS, DR plan and CCR; the Navigator has a PRD and **no controlled documents at all**. That's the gap this change must close." | §6 is the change→document matrix the Automation uses. |
 | 2:15 | 4 — baseline | Open `templates/URS_TEMPLATE.md`, then `sop/SOP-QA-001.md` §8 | "The baseline is yours, not ours: templates with document ID, version, approvals, traceability matrix, impact on validated state and revision history; the SOPs; and approved past documents as the style reference." | **Step 3 — set the baseline.** GAMP 5 / Part 11 / Annex 11 flavour; QA checklist Q1–Q12. |
 | 3:00 | 5 — playbook | Scroll the Procedure | "The playbook is the engineering standard as text: one document per session, read the template, SOP, ticket and diff, describe the code *as built*, trace every requirement to code, test and ticket, docs-only PR. Change it once, every team follows." | Versioned copy in `docs/gxp/PLAYBOOK_*.md`. |
