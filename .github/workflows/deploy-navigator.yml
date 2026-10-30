@@ -2,8 +2,12 @@ name: Deploy navigator (non-prod)
 
 # No cloud target exists for this demo, so "deploying" means building the Field Force Navigator image and
 # pushing it to GHCR; the GitHub Environment "non-prod" gates the push behind a required reviewer.
+# Pushes to main publish :non-prod; pull requests publish :pr-<n> so the gate can be exercised before merge.
 on:
   push:
+    branches: [main]
+    paths: ["apps/navigator/**", ".github/workflows/deploy-navigator.yml"]
+  pull_request:
     branches: [main]
     paths: ["apps/navigator/**", ".github/workflows/deploy-navigator.yml"]
   workflow_dispatch:
@@ -71,9 +75,14 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Tag and push
         run: |
-          SHORT=${GITHUB_SHA::7}
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            SHA="${{ github.event.pull_request.head.sha }}"; TAG="pr-${{ github.event.pull_request.number }}"
+          else
+            SHA="$GITHUB_SHA"; TAG="non-prod"
+          fi
+          SHORT=${SHA::7}
           docker tag navigator:ci "$IMAGE:$SHORT"
-          docker tag navigator:ci "$IMAGE:non-prod"
+          docker tag navigator:ci "$IMAGE:$TAG"
           docker push "$IMAGE:$SHORT"
-          docker push "$IMAGE:non-prod"
-          echo "Pushed $IMAGE:$SHORT and $IMAGE:non-prod" >> "$GITHUB_STEP_SUMMARY"
+          docker push "$IMAGE:$TAG"
+          echo "Pushed $IMAGE:$SHORT and $IMAGE:$TAG" >> "$GITHUB_STEP_SUMMARY"
