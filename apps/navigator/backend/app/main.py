@@ -3,13 +3,15 @@
 import os
 from contextlib import asynccontextmanager
 
-import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from . import __version__
 from .data import DataStore, load_tables
-from .models import Health, Rep, Territory
+from .deps import get_store, set_rules, set_store
+from .models import Health
+from .routers import hcps, plan, reps, scoring
+from .scoring import load_rules
 
 DEFAULT_CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
@@ -23,9 +25,11 @@ def cors_origins() -> list[str]:
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    app.state.store = load_tables()
+    set_store(load_tables())
+    set_rules(load_rules())
     yield
-    app.state.store = None
+    set_store(None)
+    set_rules(None)
 
 
 app = FastAPI(title="Field Force Navigator API", version=__version__, lifespan=lifespan)
@@ -36,34 +40,19 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-def get_store() -> DataStore:
-    store = getattr(app.state, "store", None)
-    if store is None:
-        store = app.state.store = load_tables()
-    return store
-
-
-def _records(df: pd.DataFrame) -> list[dict]:
-    return df.astype(object).where(pd.notna(df), None).to_dict("records")
+app.include_router(reps.router)
+app.include_router(hcps.router)
+app.include_router(scoring.router)
+app.include_router(plan.router)
 
 
 @app.get("/health", response_model=Health)
 def health() -> Health:
-    store = get_store()
-    return Health(status="ok", version=__version__, data_dir=str(store.data_dir), row_counts=store.row_counts)
-
-
-@app.get("/territories", response_model=list[Territory])
-def list_territories() -> list[Territory]:
-    territories = get_store()["territories"].sort_values("territory_id")
-    return [Territory(**row) for row in _records(territories)]
-
-
-@app.get("/reps", response_model=list[Rep])
-def list_reps() -> list[Rep]:
-    store = get_store()
-    reps = store["reps"].merge(store["territories"][["territory_id", "region"]], on="territory_id", how="left")
-    reps = reps.sort_values("rep_id")
-    return [Rep(**row) for row in _records(reps)]
+    store: DataStore = get_store()
+    return Health(
+        status="ok",
+        version=__version__,
+        data_dir=str(store.data_dir),
+        as_of=store.as_of,
+        row_counts=store.row_counts,
+    )
