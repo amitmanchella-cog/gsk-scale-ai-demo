@@ -32,3 +32,21 @@ jobs:
       - name: Pipeline parity (UC1)
         if: hashFiles('pipelines/territory_kpis/parity.py') != ''
         run: python pipelines/territory_kpis/parity.py
+
+  navigator-frontend:
+    name: Navigator frontend (lint, test, build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/navigator/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: apps/navigator/frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test -- --run
+      - run: npm run build
