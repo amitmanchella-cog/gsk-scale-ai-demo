@@ -1,0 +1,32 @@
+# GitHub Actions fallback for UC2 "keep it running" (NOT active: lives outside .github/workflows on purpose).
+# To enable: copy to .github/workflows/gxp-controlled-docs.yml and add a DEVIN_API_KEY repo secret.
+# Primary path is the Devin Automation "GSK Demo — UC2 GxP controlled docs on merge" (created disabled, pending approval).
+# This stub covers the release trigger, which Devin Automations do not expose as a GitHub event.
+name: gxp-controlled-docs
+on:
+  release:
+    types: [published]
+  push:
+    branches: [main]
+    paths:
+      - "services/supply_api/**"
+      - "apps/navigator/**"
+      - "pipelines/territory_kpis/**"
+      - "data/**"
+permissions:
+  contents: read
+jobs:
+  start-devin:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Start Devin session with the GxP playbook
+        env:
+          DEVIN_API_KEY: ${{ secrets.DEVIN_API_KEY }}
+          PLAYBOOK_ID: playbook-REPLACE_ME   # "GxP controlled document from change"
+        run: |
+          REF="${{ github.event.release.tag_name || github.sha }}"
+          PROMPT="Change ${REF} landed on main of ${{ github.repository }}. Follow docs/gxp/automation/devin_automation_prompt.md: map changed files to affected controlled documents (docs/gxp/ESTATE_MAP.md §6) and start one playbook session per document."
+          jq -n --arg p "$PROMPT" --arg pb "$PLAYBOOK_ID" \
+            '{prompt: $p, playbook_id: $pb, max_acu_limit: 10, tags: ["uc2-gxp"]}' \
+          | curl -sf -X POST https://api.devin.ai/v1/sessions \
+              -H "Authorization: Bearer ${DEVIN_API_KEY}" -H "Content-Type: application/json" -d @-

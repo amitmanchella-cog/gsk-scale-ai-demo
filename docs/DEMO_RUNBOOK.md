@@ -100,6 +100,25 @@ Tabs: Automation https://devin-gtm.devinenterprise.com/automations/b09f21a5803c4
 
 Fallbacks: no session 90 s after the re-run goes red → open the PR A/B sessions and comments, say "trigger latency is webhook delivery, the Automation is queued". If the webhook is known-dead (see section 0), use **Run now** on the Automation page with PR C's run as the event — same prompt, same limits. Mention: the same Automation can be fired from an **Azure Monitor** alert via an action-group webhook to the Devin API.
 
+## 4b. UC2 — prove it (8 min, optional segment) → `docs/DEMO_FLOW_UC2.md`
+
+Use when the audience includes QA / CSV owners; slot it between UC4 and UC3 (the 30-minute run becomes 38). Synthetic data only.
+
+Tabs: MBA-3680 https://cog-gtm.atlassian.net/browse/MBA-3680 · Devin Wiki https://devin-gtm.devinenterprise.com/wiki/amitmanchella-cog/gsk-scale-ai-demo (DeepWiki https://deepwiki.com/amitmanchella-cog/gsk-scale-ai-demo) · `docs/gxp/ESTATE_MAP.md` · `docs/gxp/baseline/` · playbook (org playbook pending approval card — versioned source `docs/gxp/PLAYBOOK_gxp_controlled_document_from_change.md`) · four fleet sessions + PRs (URS/FS/DRP/CCR-NAV-001) · QA-reviewed PR https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18 (URS-NAV-001, QA comment https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18#issuecomment-6524740512) · Automation (Automation created disabled, pending approval card — prompt `docs/gxp/automation/devin_automation_prompt.md`) (disabled draft).
+
+| Minute | Beat | Key click | One line to say |
+|---|---|---|---|
+| 0:00 | Frame | MBA-3680 | "Every change to a validated system needs URS, design spec, DR plan, change-control record — **a URS takes 35–40 hours by hand**, and documents drift from the code." |
+| 1:00 | Map the estate | DeepWiki → ESTATE_MAP §4 | "Two validated systems; supply_api is documented, the Navigator has a PRD and no controlled documents." |
+| 2:15 | Baseline | URS template → SOP-QA-001 §8 | "Your templates, your SOPs, your approved past documents — Devin follows them, it doesn't invent a format." |
+| 3:00 | Playbook | Playbook page | "One document per session, described as built, every requirement traced to code, test, ticket and PR." |
+| 3:30 | Fleet | Four sessions, four PRs | "Four sessions in parallel, one per controlled document, each ACU-capped, each a docs-only PR." |
+| 4:45 | Evidence | QA PR → header, traceability, checklist, QA comment | "QA reviews a traceable draft against the SOP; AI authorship disclosed, nobody signs but humans." |
+| 6:45 | Keep it running | Automation page | "Every merge to main → affected documents redrafted; 10 ACUs/run, 6 runs/hour; disabled until QA approves." |
+| 7:30 | Close | — | "35–40 hours of drafting becomes a review. Devin is the governed infrastructure that complements GSK's agentic factory." |
+
+Fallbacks: DeepWiki checkpoint → ESTATE_MAP.md · a session still running → show the finished PRs · Automation not approved → `docs/gxp/automation/` prompt + GitHub Actions stub.
+
 ## 5. Governance wrap-up (2 min)
 
 | Minute | Say | Show |
@@ -125,4 +144,6 @@ Fallbacks: no session 90 s after the re-run goes red → open the PR A/B session
 | UC3 parent session / children | https://devin-gtm.devinenterprise.com/sessions/e266d23a031b4bdbbd26fdd99bb374e2 · API https://devin-gtm.devinenterprise.com/sessions/8e83faaab6354ed48b8377836dd0acf4 · doc https://devin-gtm.devinenterprise.com/sessions/62b285af85374f2aba11f2816c265f0f |
 | UC3 PRs | #1 supply_api · #3 A · #4 B · #5 C (keep red) · #7 doc |
 | Automation | https://devin-gtm.devinenterprise.com/automations/b09f21a5803c4fb69d049070a961ef94 |
+| UC2 parent session / fleet | https://devin-gtm.devinenterprise.com/sessions/14340a70d82941c791bb3f0aebb05ad2 · URS https://devin-gtm.devinenterprise.com/sessions/9b6d5495414a46569c148547fe272f38 · FS https://devin-gtm.devinenterprise.com/sessions/1e49508fe65c4e55929ae31a351591c3 · DRP https://devin-gtm.devinenterprise.com/sessions/0d79cc7b00ed4b6d8b27d96e6ee16bf3 · CCR https://devin-gtm.devinenterprise.com/sessions/dbf21b4a44154051a6d06e3a3071769a |
+| UC2 PRs / playbook / Automation | parent https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/21 · fleet https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18 · https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/17 · https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/20 · https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/19 · playbook (org playbook pending approval card — versioned source `docs/gxp/PLAYBOOK_gxp_controlled_document_from_change.md`) · Automation (Automation created disabled, pending approval card — prompt `docs/gxp/automation/devin_automation_prompt.md`) · Jira MBA-3680 |
 | Orchestrating session | https://devin-gtm.devinenterprise.com/sessions/0f8f8aee7bf3446baaadce42f0a9f093 |
