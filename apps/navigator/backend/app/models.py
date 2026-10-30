@@ -9,6 +9,7 @@ class Health(BaseModel):
     status: str
     version: str
     data_dir: str
+    as_of: date
     row_counts: dict[str, int]
 
 

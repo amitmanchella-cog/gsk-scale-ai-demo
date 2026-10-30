@@ -44,3 +44,12 @@ def test_cors_allows_vite_dev_server(client):
     )
     assert r.status_code == 200
     assert r.headers["access-control-allow-origin"] == "http://localhost:5173"
+
+
+def test_health_as_of_defaults_to_latest_visit(client):
+    assert client.get("/health").json()["as_of"] == "2025-09-29"
+
+
+def test_health_as_of_env_override(client, monkeypatch):
+    monkeypatch.setenv("NAVIGATOR_AS_OF_DATE", "2025-08-01")
+    assert client.get("/health").json()["as_of"] == "2025-08-01"
