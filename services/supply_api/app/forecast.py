@@ -3,7 +3,7 @@
 from collections.abc import Sequence
 
 
-def moving_average(values: Sequence[float], window: int) -> float:
+def rolling_mean(values: Sequence[float], window: int) -> float:
     """Mean of the last ``window`` values (or of all values if fewer are available)."""
     if window < 1:
         raise ValueError("window must be >= 1")
@@ -35,7 +35,7 @@ def linear_trend(values: Sequence[float], horizon: int) -> list[float]:
 def forecast_consumption(history: Sequence[float], weeks: int, method: str = "moving_average") -> list[float]:
     """Forecast ``weeks`` weekly quantities from ``history`` using the named method."""
     if method == "moving_average":
-        return [round(moving_average(history, window=4), 2)] * weeks
+        return [round(rolling_mean(history, window=4), 2)] * weeks
     if method == "linear_trend":
         return [round(v, 2) for v in linear_trend(history, weeks)]
     raise ValueError(f"unknown forecast method: {method!r}")
