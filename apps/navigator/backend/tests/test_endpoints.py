@@ -1,5 +1,5 @@
-from app import __version__
-from app.data import TABLES
+from navigator_app import __version__
+from navigator_app.data import TABLES
 
 
 def test_health_reports_row_counts(client):

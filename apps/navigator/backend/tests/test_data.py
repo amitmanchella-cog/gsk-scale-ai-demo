@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import pytest
-from app import data
+from navigator_app import data
 
 
 def test_default_data_dir_is_repo_root_data(monkeypatch):

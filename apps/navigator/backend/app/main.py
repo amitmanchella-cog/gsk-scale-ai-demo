@@ -7,9 +7,9 @@ import pandas as pd
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app import __version__
-from app.data import DataStore, load_tables
-from app.models import Health, Rep, Territory
+from . import __version__
+from .data import DataStore, load_tables
+from .models import Health, Rep, Territory
 
 DEFAULT_CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
