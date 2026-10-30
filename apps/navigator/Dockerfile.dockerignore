@@ -1,0 +1,10 @@
+# BuildKit reads <Dockerfile>.dockerignore next to the Dockerfile when the build context is the repo root.
+*
+!apps/navigator/backend/app
+!apps/navigator/backend/requirements.txt
+!apps/navigator/frontend
+apps/navigator/frontend/node_modules
+apps/navigator/frontend/dist
+!data/*.parquet
+**/__pycache__
+**/*.pyc
