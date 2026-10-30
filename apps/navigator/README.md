@@ -9,10 +9,12 @@ apps/navigator/
 ├── backend/            FastAPI (pydantic v2), package `app`
 │   ├── app/
 │   │   ├── main.py     app = FastAPI(...), lifespan loads the tables, CORS for the Vite dev server
+│   │   ├── server.py   container entrypoint: /api -> main:app, / -> built SPA, /health
 │   │   ├── data.py     load_tables(): data/*.parquet -> in-memory pandas DataFrames (DataStore)
 │   │   └── models.py   Health, Rep, Territory response models
 │   ├── tests/          pytest + TestClient (conftest.py puts backend/ on sys.path)
 │   └── requirements.txt
+├── Dockerfile          multi-stage image (node:20-alpine build -> python:3.11-slim), see "Run the container"
 └── frontend/           React 18 + Vite 5 + TypeScript, vitest + Testing Library, ESLint 9 flat config
     ├── src/App.tsx     placeholder page: calls /health, lists /reps
     ├── src/api.ts      typed fetch helpers (all calls go through /api)
@@ -25,6 +27,9 @@ At startup the backend reads `hcps`, `visits`, `follow_ups`, `reps`, `territorie
 data directory with pandas + pyarrow and keeps them in memory. The directory defaults to `<repo root>/data`
 (resolved relative to the package, not the CWD) and can be overridden with `NAVIGATOR_DATA_DIR` (absolute, or
 relative to the repo root).
+
+The *as-of date* ("today" for days-since-last-visit and scoring) is the latest `visit_date` in the data,
+2025-09-29, unless `NAVIGATOR_AS_OF_DATE=YYYY-MM-DD` is set; `GET /health` reports it as `as_of`.
 
 ## Run the backend
 
@@ -59,6 +64,43 @@ planned anywhere this week) and `duplicate` (HCP planned more than once; allowed
 CORS is enabled for `http://localhost:5173` / `http://127.0.0.1:5173`; override with a comma-separated
 `NAVIGATOR_CORS_ORIGINS`.
 
+### Scoring rules
+
+`GET /scoring/rules` returns the rules in effect (`app/scoring.py`, `ScoringRules`); `/scoring/explain` scores
+arbitrary inputs. Defaults: `segment_weights` `A=40, B=25, C=10`, `points_per_day` 1, `days_cap` 40 (never visited =
+cap), `open_follow_up_bonus` 20, `recent_visit_days` 7 (visited within 7 days scores 0), `max_score` 100. Override
+any subset at startup with `NAVIGATOR_SCORING_RULES` (a JSON object, e.g. `{"days_cap": 60, "segment_weights":
+{"A": 50, "B": 25, "C": 5}}`) or `NAVIGATOR_SCORING_RULES_FILE` (path to a JSON file); invalid values fail fast.
+
+### Environment variables
+
+| Variable | Default | Used by |
+| --- | --- | --- |
+| `NAVIGATOR_DATA_DIR` | `<repo root>/data` | `app/data.py`, location of the six parquet tables |
+| `NAVIGATOR_AS_OF_DATE` | latest `visit_date` (2025-09-29) | reference date for days since last visit |
+| `NAVIGATOR_STATIC_DIR` | `apps/navigator/frontend/dist` | `app/server.py`, built SPA served at `/` |
+| `NAVIGATOR_CORS_ORIGINS` | Vite dev server origins | `app/main.py` |
+| `NAVIGATOR_MAX_VISITS_PER_DAY`, `NAVIGATOR_OVERDUE_DAYS` | `6`, `30` | `app/plans.py` |
+| `NAVIGATOR_SCORING_RULES`, `NAVIGATOR_SCORING_RULES_FILE` | defaults above | `app/scoring.py` |
+
+## Run the container
+
+One image serves the API under `/api`, the built frontend at `/` and `/health` on port 8000 with the curated tables
+baked in (`app/server.py`). Build from the **repo root** so `data/*.parquet` is in the build context:
+
+```bash
+docker build -f apps/navigator/Dockerfile -t navigator .
+docker run --rm -p 8000:8000 navigator
+curl -s localhost:8000/health            # {"status":"ok",...,"as_of":"2025-09-29",...}
+curl -s localhost:8000/api/reps | head -c 200
+open http://localhost:8000               # the SPA; API docs at /api/docs
+```
+
+The image sets `NAVIGATOR_DATA_DIR=/srv/data` and `NAVIGATOR_STATIC_DIR=/srv/static`; pass `-e NAVIGATOR_AS_OF_DATE=…`
+or any variable from the table above to `docker run` to override. `apps/navigator/Dockerfile.dockerignore` keeps the
+build context to the backend, the frontend sources and the parquet files. Without a frontend build (`uvicorn
+app.server:app` locally before `npm run build`), `/` returns a JSON pointer at `/api/docs` instead of failing.
+
 ## Run the frontend
 
 Requires Node 20.
@@ -78,19 +120,28 @@ From the repo root (ruff + pytest config live in `pyproject.toml`):
 ```bash
 ruff check .
 pytest apps/navigator/backend
+pytest apps/navigator/backend --cov=navigator_app.scoring --cov-report=term-missing --cov-fail-under=90   # NFR-1
+pytest apps/navigator/backend/tests/test_perf.py -s   # NFR-3: prints the 300-HCP timings (p95 must be < 1 s)
 ```
+
+`tests/conftest.py` loads the backend package under the alias `navigator_app` (the `services/supply_api` package is
+also called `app`), so coverage targets and test imports use `navigator_app.…`.
 
 Frontend:
 
 ```bash
 cd apps/navigator/frontend
 npm run lint
-npm test -- --run
+npm test -- --run       # includes src/a11y.test.tsx (NFR-4: tab order, accessible names, aria-live / role=alert)
 npm run build
 ```
 
 ## CI
 
-`.github/workflows/ci.yml` has two jobs: the existing `python` job (ruff + pytest across `data`, `pipelines`,
-`services`, `apps`; it installs `apps/*/backend/requirements.txt` automatically) and `navigator-frontend`
-(Node 20, `npm ci`, `npm run lint`, `npm test -- --run`, `npm run build`).
+`.github/workflows/ci.yml` runs three jobs on every PR, all required:
+
+| Job | What it runs |
+| --- | --- |
+| `python` | `ruff check .`, `pytest` across `data`, `pipelines`, `services`, `apps` (installs `apps/*/backend/requirements.txt` automatically), then the scoring coverage gate `pytest apps/navigator/backend --cov=navigator_app.scoring --cov-fail-under=90` |
+| `navigator-frontend` | Node 20, `npm ci`, `npm run lint`, `npm test -- --run`, `npm run build` |
+| `navigator-container` | `docker build -f apps/navigator/Dockerfile`, `docker run -p 8000:8000`, waits for `/health`, then checks `/health`, `/api/reps`, `/api/reps/R001/hcps` (contains `"T001"`) and `/` (contains `<div id="root">`); prints `docker logs` on failure |

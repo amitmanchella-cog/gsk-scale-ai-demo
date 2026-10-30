@@ -21,7 +21,7 @@ data/                     generate.py + ~10k rows of Parquet (6 tables)
 notebooks/                territory_kpis.ipynb (UC1 "before"), hcp_engagement.ipynb (live run), expected_output/
 pipelines/territory_kpis/ UC1 output: modular PySpark job, tests, DQ checks, parity.py
 jobs/                     Databricks job JSON (shown, not run — no Databricks account needed)
-apps/navigator/           UC4 output: FastAPI backend + React/Vite frontend
+apps/navigator/           UC4 output: Field Force Navigator (FastAPI backend + React/Vite frontend + Dockerfile)
 services/supply_api/      UC3: FastAPI clinical-supply forecast service used to demo CI self-healing
 docs/                     DEMO_FLOW_UC1.md, DEMO_FLOW_UC4.md, DEMO_FLOW_UC3.md, DEMO_RUNBOOK.md
 .github/workflows/        CI: ruff + pytest for every code folder, plus UC1 parity
@@ -37,3 +37,13 @@ cd notebooks && python run_notebook.py territory_kpis.ipynb   # rebuild expected
 ```
 
 Tests and parity run on **local Spark** in CI; nothing here needs Databricks, a cloud account or credentials.
+
+### UC4 Field Force Navigator
+
+The territory call planner lives in `apps/navigator/` (see its [README](apps/navigator/README.md) for the backend,
+frontend, tests and the container). Quickest way to run it end to end:
+
+```bash
+docker build -f apps/navigator/Dockerfile -t navigator . && docker run --rm -p 8000:8000 navigator
+# http://localhost:8000 (SPA), /api/docs (API), /health
+```

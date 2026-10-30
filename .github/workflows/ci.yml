@@ -29,6 +29,8 @@ jobs:
         run: ruff check .
       - name: Tests
         run: pytest
+      - name: Navigator scoring coverage gate (NFR-1, >= 90%)
+        run: pytest apps/navigator/backend --cov=navigator_app.scoring --cov-report=term-missing --cov-fail-under=90
       - name: Pipeline parity (UC1)
         if: hashFiles('pipelines/territory_kpis/parity.py') != ''
         run: python pipelines/territory_kpis/parity.py
@@ -50,3 +52,42 @@ jobs:
       - run: npm run lint
       - run: npm test -- --run
       - run: npm run build
+
+  navigator-container:
+    name: Navigator container (build + smoke)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -f apps/navigator/Dockerfile -t navigator:ci .
+      - name: Run container
+        run: docker run -d -p 8000:8000 --name nav navigator:ci
+      - name: Wait for /health
+        run: |
+          for i in $(seq 1 30); do
+            if curl -fsS http://localhost:8000/health > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          echo "container did not become healthy" >&2
+          exit 1
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          check() {  # check <path> <expected substring>
+            body=$(curl -sS -w '\n%{http_code}' "http://localhost:8000$1")
+            code=${body##*$'\n'}
+            body=${body%$'\n'*}
+            [ "$code" = "200" ] || { echo "GET $1 -> HTTP $code" >&2; exit 1; }
+            grep -qF -- "$2" <<< "$body" || { echo "GET $1 body does not contain $2" >&2; exit 1; }
+            echo "GET $1 -> 200, contains $2"
+          }
+          check /health '"status":"ok"'
+          check /api/reps '"R001"'
+          check /api/reps/R001/hcps '"T001"'
+          check / '<div id="root">'
+      - name: Container logs
+        if: failure()
+        run: docker logs nav
+      - name: Stop container
+        if: always()
+        run: docker rm -f nav
