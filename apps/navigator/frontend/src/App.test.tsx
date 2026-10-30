@@ -22,8 +22,9 @@ function jsonResponse(body: unknown, status = 200) {
 export function mockApi(routes: Record<string, unknown>) {
   return vi.spyOn(globalThis, 'fetch').mockImplementation(async (input) => {
     const url = String(input)
+    const pathname = new URL(url, 'http://localhost').pathname
     for (const [suffix, body] of Object.entries(routes)) {
-      if (url.includes(suffix)) return jsonResponse(body)
+      if (pathname.endsWith(suffix)) return jsonResponse(body)
     }
     return jsonResponse({ detail: `unexpected fetch ${url}` }, 404)
   })

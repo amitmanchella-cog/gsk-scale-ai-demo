@@ -38,6 +38,21 @@ uvicorn app.main:app --reload --app-dir apps/navigator/backend          # http:/
 | GET | `/health` | `{"status": "ok", "version", "data_dir", "row_counts": {table: rows}}` |
 | GET | `/reps` | reps (`rep_id`, `rep_name`, `territory_id`, `region`, `hire_date`), region joined from `territories` |
 | GET | `/territories` | territories (`territory_id`, `territory_name`, `region`) |
+| GET | `/scoring/rules` | scoring rules in effect |
+| GET | `/scoring/explain?segment=A&days_since_last_visit=45&open_follow_ups=1` | `{score, reason, factors}` for arbitrary inputs |
+| GET | `/reps/{rep_id}/plan?as_of=` | the rep's weekly `Plan` (`week_start`, `max_visits_per_day`, `total_visits`, `days[]` with `count`/`capacity`/`visits[]`, `warnings[]`); 404 unknown rep |
+| POST | `/reps/{rep_id}/plan/visits` body `{"hcp_id", "day": "Mon".."Fri"}` | `201 Plan`; `409` when the day is full (`"Tuesday already has 6 visits (max 6)"`), `422` bad day or HCP outside the rep's territory, `404` unknown rep/HCP |
+| DELETE | `/reps/{rep_id}/plan/visits/{visit_id}` | `Plan` without that visit; 404 if absent |
+| DELETE | `/reps/{rep_id}/plan` | the emptied `Plan` |
+
+Plans are held in process memory per rep (`app/plans.py`, `PlanStore`) and rebuilt from the scored HCP view on every
+read, so scores and warnings follow the as-of date. Warnings: `overdue_segment_a` (Segment A HCP overdue and not
+planned anywhere this week) and `duplicate` (HCP planned more than once; allowed, not blocked).
+
+| Variable | Default | Effect |
+| --- | --- | --- |
+| `NAVIGATOR_MAX_VISITS_PER_DAY` | `6` | per-day capacity; the (n+1)th add is rejected with 409 |
+| `NAVIGATOR_OVERDUE_DAYS` | `30` | a Segment A HCP with more days since the last visit (or never visited) raises an `overdue_segment_a` warning |
 
 CORS is enabled for `http://localhost:5173` / `http://127.0.0.1:5173`; override with a comma-separated
 `NAVIGATOR_CORS_ORIGINS`.
