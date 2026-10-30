@@ -145,8 +145,28 @@ describe('PlanBuilder', () => {
     expect(second.onClear).toHaveBeenCalledTimes(1)
   })
 
+  it('export downloads a CSV', () => {
+    const plan = makePlan({ total_visits: 1 })
+    plan.days[0] = { ...plan.days[0], count: 1, visits: [islaXu] }
+    renderPlan(plan)
+
+    const link = screen.getByRole('link', { name: 'Export CSV' })
+    expect(link).toHaveAttribute('href', '/api/reps/R001/plan/export.csv')
+    expect(link).toHaveAttribute('download')
+    expect(link).not.toHaveAttribute('aria-disabled')
+    expect(link).toHaveClass('button')
+  })
+
+  it('disables export for an empty plan', () => {
+    renderPlan(makePlan())
+    const link = screen.getByRole('link', { name: 'Export CSV' })
+    expect(link).toHaveAttribute('aria-disabled', 'true')
+    expect(link).not.toHaveAttribute('href')
+    expect(link).toHaveAttribute('tabindex', '-1')
+  })
+
   it('renders the export slot next to the actions', () => {
-    renderPlan(makePlan(), { exportSlot: <a href="/api/reps/R001/plan/export.csv">Export CSV</a> })
-    expect(screen.getByRole('link', { name: 'Export CSV' })).toBeInTheDocument()
+    renderPlan(makePlan(), { exportSlot: <button type="button">Extra</button> })
+    expect(screen.getByRole('button', { name: 'Extra' })).toBeInTheDocument()
   })
 })

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { DAY_NAMES, type Plan, type PlanDay } from '../api'
+import { DAY_NAMES, planExportUrl, type Plan, type PlanDay } from '../api'
 
 export interface PlanBuilderProps {
   repId: string
@@ -7,7 +7,7 @@ export interface PlanBuilderProps {
   message: string | null
   onRemove: (visitId: number) => Promise<void>
   onClear: () => Promise<void>
-  /** S4 (MBA-3662) renders the Export CSV link here, next to "Clear plan". */
+  /** Extra controls rendered after "Export CSV" (e.g. in tests or future stories). */
   exportSlot?: ReactNode
 }
 
@@ -40,6 +40,21 @@ function DayColumn({ day, onRemove }: { day: PlanDay; onRemove: (visitId: number
         </ul>
       )}
     </section>
+  )
+}
+
+function ExportLink({ repId, empty }: { repId: string; empty: boolean }) {
+  if (empty) {
+    return (
+      <a className="button" role="link" aria-disabled="true" tabIndex={-1}>
+        Export CSV
+      </a>
+    )
+  }
+  return (
+    <a className="button" href={planExportUrl(repId)} download>
+      Export CSV
+    </a>
   )
 }
 
@@ -85,6 +100,7 @@ export default function PlanBuilder({ repId, plan, message, onRemove, onClear, e
             <button type="button" onClick={() => void onClear()} disabled={plan.total_visits === 0}>
               Clear plan
             </button>
+            <ExportLink repId={repId} empty={plan.total_visits === 0} />
             {exportSlot}
           </div>
         </>

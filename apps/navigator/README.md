@@ -44,6 +44,7 @@ uvicorn app.main:app --reload --app-dir apps/navigator/backend          # http:/
 | POST | `/reps/{rep_id}/plan/visits` body `{"hcp_id", "day": "Mon".."Fri"}` | `201 Plan`; `409` when the day is full (`"Tuesday already has 6 visits (max 6)"`), `422` bad day or HCP outside the rep's territory, `404` unknown rep/HCP |
 | DELETE | `/reps/{rep_id}/plan/visits/{visit_id}` | `Plan` without that visit; 404 if absent |
 | DELETE | `/reps/{rep_id}/plan` | the emptied `Plan` |
+| GET | `/reps/{rep_id}/plan/export.csv?as_of=` | the plan as RFC 4180 CSV (`day,hcp_id,hcp_name,specialty,segment,score,reason`, Mon→Fri then score desc; header only when empty) with `Content-Disposition: attachment; filename="plan_<rep_id>_<week_start>.csv"`; 404 unknown rep |
 
 Plans are held in process memory per rep (`app/plans.py`, `PlanStore`) and rebuilt from the scored HCP view on every
 read, so scores and warnings follow the as-of date. Warnings: `overdue_segment_a` (Segment A HCP overdue and not
