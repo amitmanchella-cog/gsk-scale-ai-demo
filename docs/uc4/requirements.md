@@ -100,7 +100,7 @@ my week is realistic and covers the right HCPs.*
 - **AC4** — Given a day already has 6 visits, when the rep adds a 7th, then the add is blocked with a message
   (API: `409 {"detail": "Tuesday already has 6 visits (max 6)"}`; UI: inline message, the plan is unchanged).
 - **AC5** — Given a Segment A HCP is more than 30 days overdue and not in the plan, when the rep views the plan,
-  then a warning names that HCP (one warning per HCP, e.g. `"Dr Chloe Xu (Segment A) is 60 days overdue and not
+  then a warning names that HCP (one warning per HCP, e.g. `"Dr Isla Xu (Segment A) is 51 days overdue and not
   planned"`; the warning disappears once the HCP is added to any day).
 - **S3.1** — Given the plan, when the rep adds an HCP who is already planned on another (or the same) day, then the
   add succeeds and a **duplicate warning** names the HCP and both days (warn, don't block — a second visit may be

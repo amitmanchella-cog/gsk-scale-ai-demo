@@ -161,7 +161,7 @@ All endpoints are JSON unless stated; errors use FastAPI's `{"detail": "..."}`. 
 | GET | `/scoring/explain` | `segment=A\|B\|C`, `days_since_last_visit=int\|null`, `open_follow_ups=int` | `ScoreResult {score, reason, factors}` | 422 invalid segment |
 | GET | `/reps/{rep_id}/hcps` | `specialty?`, `segment?`, `min_days_since_last_visit?`, `q?`, `as_of?` | `HcpListResponse {rep, territory, as_of, count, hcps: HcpView[]}` sorted score desc, name asc | 404 unknown rep |
 | GET | `/reps/{rep_id}/plan` | `as_of?` | `Plan` | 404 unknown rep |
-| POST | `/reps/{rep_id}/plan/visits` | body `{"hcp_id": "H00052", "day": "Tue"}` | `201 Plan` | 404 rep/hcp; 409 day full; 422 bad day / HCP outside territory |
+| POST | `/reps/{rep_id}/plan/visits` | body `{"hcp_id": "H00733", "day": "Tue"}` | `201 Plan` | 404 rep/hcp; 409 day full; 422 bad day / HCP outside territory |
 | DELETE | `/reps/{rep_id}/plan/visits/{visit_id}` | — | `Plan` | 404 |
 | DELETE | `/reps/{rep_id}/plan` | — | empty `Plan` | 404 |
 | GET | `/reps/{rep_id}/plan/export.csv` | — | `text/csv; charset=utf-8`, `Content-Disposition: attachment; filename="plan_R001_2025-09-29.csv"` | 404 |
@@ -173,15 +173,15 @@ GET /reps/R001/hcps?segment=A&min_days_since_last_visit=30&q=xu
 200 {"rep": {"rep_id": "R001", "rep_name": "Dev Okafor", "territory_id": "T001"},
      "territory": {"territory_id": "T001", "territory_name": "South-01", "region": "South"},
      "as_of": "2025-09-29", "count": 1,
-     "hcps": [{"hcp_id": "H00052", "hcp_name": "Dr Chloe Xu", "specialty": "Pulmonology", "segment": "A",
-               "territory_id": "T001", "last_visit_date": "2025-07-31", "days_since_last_visit": 60,
+     "hcps": [{"hcp_id": "H00733", "hcp_name": "Dr Isla Xu", "specialty": "GP", "segment": "A",
+               "territory_id": "T001", "last_visit_date": "2025-08-09", "days_since_last_visit": 51,
                "open_follow_ups": 1, "score": 100,
-               "reason": "Segment A (+40), 60 days since last visit (+40, capped), 1 open follow-up (+20)",
+               "reason": "Segment A (+40), 51 days since last visit (+40, capped), 1 open follow-up (+20)",
                "factors": [{"name": "segment", "points": 40, "detail": "Segment A"},
-                           {"name": "days_since_last_visit", "points": 40, "detail": "60 days since last visit (capped)"},
+                           {"name": "days_since_last_visit", "points": 40, "detail": "51 days since last visit (capped)"},
                            {"name": "open_follow_up", "points": 20, "detail": "1 open follow-up"}]}]}
 
-POST /reps/R001/plan/visits  {"hcp_id": "H00052", "day": "Tue"}
+POST /reps/R001/plan/visits  {"hcp_id": "H00733", "day": "Tue"}
 409 {"detail": "Tuesday already has 6 visits (max 6)"}
 
 POST /reps/R001/plan/visits  {"hcp_id": "H00002", "day": "Tue"}      # H00002 is in T005
@@ -191,12 +191,12 @@ GET /reps/R001/plan
 200 {"rep_id": "R001", "territory_id": "T001", "week_start": "2025-09-29", "as_of": "2025-09-29",
      "max_visits_per_day": 6, "total_visits": 2,
      "days": [{"day": "Mon", "date": "2025-09-29", "count": 1, "capacity": 6,
-               "visits": [{"visit_id": 1, "hcp_id": "H00052", "hcp_name": "Dr Chloe Xu", "specialty": "Pulmonology",
+               "visits": [{"visit_id": 1, "hcp_id": "H00733", "hcp_name": "Dr Isla Xu", "specialty": "GP",
                            "segment": "A", "score": 100, "reason": "Segment A (+40), …"}]},
-              {"day": "Tue", "date": "2025-09-30", "count": 1, "capacity": 6, "visits": [{"visit_id": 2, "hcp_id": "H00052", …}]},
+              {"day": "Tue", "date": "2025-09-30", "count": 1, "capacity": 6, "visits": [{"visit_id": 2, "hcp_id": "H00733", …}]},
               {"day": "Wed", …}, {"day": "Thu", …}, {"day": "Fri", …}],
-     "warnings": [{"type": "duplicate", "hcp_id": "H00052", "hcp_name": "Dr Chloe Xu", "days": ["Mon", "Tue"],
-                   "message": "Dr Chloe Xu is planned twice (Mon, Tue)"},
+     "warnings": [{"type": "duplicate", "hcp_id": "H00733", "hcp_name": "Dr Isla Xu", "days": ["Mon", "Tue"],
+                   "message": "Dr Isla Xu is planned twice (Mon, Tue)"},
                   {"type": "overdue_segment_a", "hcp_id": "H00066", "hcp_name": "Dr Finn Singh", "days": [],
                    "message": "Dr Finn Singh (Segment A) is 57 days overdue and not planned"}]}
 ```
@@ -247,7 +247,7 @@ demonstrated live without hunting for a matching HCP.
 | Boundary | A, 8 days, 0 open | 40 + 8 = 48 | 48 | `Segment A (+40), 8 days since last visit (+8)` |
 | Cap only | A, 40 days, 0 open | 40 + 40 = 80 | 80 | `… 40 days since last visit (+40)` (no "capped": 40 × 1 = cap exactly) |
 | Over 100 | A, 60 days, 1 open | 40 + 40 + 20 = 100 | 100 | ends `(+20) → capped at 100` only if raw > 100; here raw = 100, so no suffix |
-| Real data | H00052 Dr Chloe Xu (T001): A, 60 days, 1 open | 100 | 100 | as in the API example above |
+| Real data | H00733 Dr Isla Xu (T001): A, 51 days, 1 open | 100 | 100 | as in the API example above |
 | Real data | H00011 Dr Rhea Okafor: visited 5 days ago | recent | 0 | `Visited 5 days ago (within 7 days)` |
 | Custom rules | `{"segment_weights":{"A":50,"B":25,"C":10}}`, A, 10 days, 0 open | 50 + 10 | 60 | `Segment A (+50), 10 days since last visit (+10)` |
 
@@ -263,7 +263,7 @@ Plan warnings (`plans.py`):
   is not modified. Checked before the duplicate logic, so a 7th duplicate is still a 409.
 
 Worked AC5 example on repo data, rep R001 (T001, 64 HCPs, 15 Segment A, 12 of them > 30 days overdue or never
-visited as of 2025-09-29): an empty plan shows 12 `overdue_segment_a` warnings; adding Dr Chloe Xu to any day drops
+visited as of 2025-09-29): an empty plan shows 12 `overdue_segment_a` warnings; adding Dr Isla Xu to any day drops
 it to 11 and her warning disappears.
 
 ## 6. Frontend design
