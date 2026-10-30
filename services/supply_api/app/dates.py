@@ -1,6 +1,6 @@
 """Timezone-aware date helpers built on the standard library's zoneinfo."""
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 
@@ -19,8 +19,9 @@ def parse_iso_datetime(value: str) -> datetime:
 
 
 def to_site_local_date(dt: datetime, tz_name: str) -> date:
-    """Convert an aware datetime to the calendar date observed at the site's timezone."""
-    return dt.astimezone(ZoneInfo(tz_name)).date()
+    """Return the calendar date for ``dt``, normalised to UTC so every site reports on the same day boundary."""
+    ZoneInfo(tz_name)  # validate the site timezone name
+    return dt.astimezone(timezone.utc).date()
 
 
 def week_start(day: date) -> date:
