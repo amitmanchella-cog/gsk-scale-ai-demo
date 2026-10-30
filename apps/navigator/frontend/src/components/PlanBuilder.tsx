@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, useRef, type ReactNode } from 'react'
 import { DAY_NAMES, planExportUrl, type Plan, type PlanDay } from '../api'
 
 export interface PlanBuilderProps {
@@ -59,6 +59,12 @@ function ExportLink({ repId, empty }: { repId: string; empty: boolean }) {
 }
 
 export default function PlanBuilder({ repId, plan, message, onRemove, onClear, exportSlot }: PlanBuilderProps) {
+  const alertRef = useRef<HTMLDivElement>(null)
+  useEffect(() => {
+    if (!message || !alertRef.current) return
+    alertRef.current.scrollIntoView?.({ block: 'nearest' })
+    alertRef.current.focus()
+  }, [message])
   return (
     <section className="panel" aria-labelledby="plan-heading">
       <div className="panel-header">
@@ -71,7 +77,7 @@ export default function PlanBuilder({ repId, plan, message, onRemove, onClear, e
       </div>
 
       {message && (
-        <div role="alert" className="alert">
+        <div role="alert" className="alert" ref={alertRef} tabIndex={-1}>
           {message}
         </div>
       )}
