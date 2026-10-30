@@ -29,7 +29,7 @@ class Product(BaseModel):
     product_id: str
     name: str
     dosage_form: str
-    lead_time_weeks: int = Field(default=6, ge=1, description="Weeks from order to arrival at site")
+    lead_time_weeks: int = Field(default=8, ge=1, description="Weeks from order to arrival at site")
 
 
 class StockLevel(BaseModel):
