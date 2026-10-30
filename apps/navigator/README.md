@@ -38,6 +38,7 @@ uvicorn app.main:app --reload --app-dir apps/navigator/backend          # http:/
 | GET | `/health` | `{"status": "ok", "version", "data_dir", "row_counts": {table: rows}}` |
 | GET | `/reps` | reps (`rep_id`, `rep_name`, `territory_id`, `region`, `hire_date`), region joined from `territories` |
 | GET | `/territories` | territories (`territory_id`, `territory_name`, `region`) |
+| GET | `/reps/{rep_id}/hcps` | `{rep, territory, as_of, count, hcps: HcpView[]}` for the rep's territory, scored and sorted (score desc, name asc); filters `specialty`, `segment` (A/B/C), `min_days_since_last_visit` (never-visited rows match), `q` (case-insensitive name search), `as_of` (YYYY-MM-DD); 404 unknown rep |
 | GET | `/scoring/rules` | scoring rules in effect |
 | GET | `/scoring/explain?segment=A&days_since_last_visit=45&open_follow_ups=1` | `{score, reason, factors}` for arbitrary inputs |
 | GET | `/reps/{rep_id}/plan?as_of=` | the rep's weekly `Plan` (`week_start`, `max_visits_per_day`, `total_visits`, `days[]` with `count`/`capacity`/`visits[]`, `warnings[]`); 404 unknown rep |
