@@ -213,3 +213,83 @@ td.reason {
   padding: 0.4rem 0.5rem;
   vertical-align: top;
 }
+
+/* Weekly plan (S3) */
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.muted {
+  color: #52606d;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.warnings {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.plan-days {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+}
+
+.plan-day {
+  border: 1px solid #d9e2ec;
+  border-radius: 6px;
+  padding: 0.6rem 0.75rem;
+  background: #f8fafc;
+}
+
+.plan-day h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.plan-date {
+  color: #52606d;
+  font-size: 0.8rem;
+  margin: 0 0 0.5rem;
+}
+
+.plan-visits {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.plan-visit {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #e4e7eb;
+}
+
+.plan-visit-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.plan-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
