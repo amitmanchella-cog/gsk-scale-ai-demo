@@ -25,3 +25,24 @@ class Rep(BaseModel):
     territory_id: str
     region: str | None = None
     hire_date: date | None = None
+
+
+class ScoringRulesModel(BaseModel):
+    segment_weights: dict[str, int]
+    points_per_day: int
+    days_cap: int
+    open_follow_up_bonus: int
+    recent_visit_days: int
+    max_score: int
+
+
+class ScoreFactor(BaseModel):
+    name: str
+    points: int
+    detail: str
+
+
+class ScoreResult(BaseModel):
+    score: int
+    reason: str
+    factors: list[ScoreFactor]
