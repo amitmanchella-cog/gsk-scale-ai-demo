@@ -150,7 +150,7 @@ export default function HcpList({ repId, addDay, onAddDayChange, onAdd }: HcpLis
           )}
           {data && data.hcps.length === 0 && !error && <p>No HCPs match the current filters.</p>}
           {data && data.hcps.length > 0 && (
-            <table aria-busy={loading}>
+            <table className="hcp-table" aria-busy={loading}>
               <thead>
                 <tr>
                   <th scope="col">HCP</th>

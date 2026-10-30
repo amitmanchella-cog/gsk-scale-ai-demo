@@ -133,7 +133,7 @@ button:disabled,
   align-items: start;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1200px) {
   .columns {
     grid-template-columns: 1fr;
   }
@@ -184,6 +184,7 @@ button:disabled,
 }
 
 .hcp-id {
+  display: block;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.85em;
   color: #52606d;
@@ -197,4 +198,18 @@ td.score {
 td.reason {
   color: #3e4c59;
   font-size: 0.9em;
+}
+
+.panel {
+  overflow-x: auto;
+}
+
+.hcp-table {
+  font-size: 0.9rem;
+}
+
+.hcp-table th,
+.hcp-table td {
+  padding: 0.4rem 0.5rem;
+  vertical-align: top;
 }
