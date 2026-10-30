@@ -160,3 +160,15 @@ def test_joins_on_small_fixture(tmp_path):
     assert by_id["H4"]["last_visit_date"] == date(2025, 1, 20)  # the 2025-03-05 visit is after as_of
     assert by_id["H4"]["score"] == 40 + 40 + 20
     assert by_id["H5"]["score"] == 25 + 40
+
+
+def test_default_rules_come_from_deps(store):
+    """Without an explicit ``rules`` argument the view uses the rules in effect (``deps.get_rules``)."""
+    from navigator_app.deps import set_rules
+
+    set_rules(ScoringRules(segment_weights={"A": 50, "B": 25, "C": 10}))
+    try:
+        row = to_records(territory_hcps(store, "T001").pipe(lambda df: df[df["hcp_id"] == "H00733"]))[0]
+    finally:
+        set_rules(None)
+    assert row["factors"][0] == {"name": "segment", "points": 50, "detail": "Segment A"}

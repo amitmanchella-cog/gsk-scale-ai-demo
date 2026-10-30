@@ -9,6 +9,7 @@ from datetime import date
 import pandas as pd
 
 from .data import DataStore
+from .deps import get_rules
 from .scoring import ScoringRules, score_hcp
 
 VIEW_COLUMNS = [
@@ -44,7 +45,7 @@ def territory_hcps(
 ) -> pd.DataFrame:
     """One row per HCP in ``territory_id`` with :data:`VIEW_COLUMNS`, sorted by score desc then hcp_name asc."""
     as_of = as_of or store.as_of
-    rules = rules or ScoringRules()
+    rules = rules if rules is not None else get_rules()
     hcps = store["hcps"]
     df = hcps.loc[hcps["territory_id"] == territory_id, ["hcp_id", "hcp_name", "specialty", "segment", "territory_id"]]
     df = df.copy()
