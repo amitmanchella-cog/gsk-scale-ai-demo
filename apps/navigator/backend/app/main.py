@@ -10,7 +10,7 @@ from . import __version__
 from .data import DataStore, load_tables
 from .deps import get_store, set_rules, set_store
 from .models import Health
-from .routers import reps, scoring
+from .routers import plan, reps, scoring
 from .scoring import load_rules
 
 DEFAULT_CORS_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
@@ -42,6 +42,7 @@ app.add_middleware(
 )
 app.include_router(reps.router)
 app.include_router(scoring.router)
+app.include_router(plan.router)
 
 
 @app.get("/health", response_model=Health)

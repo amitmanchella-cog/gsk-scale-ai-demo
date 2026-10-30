@@ -32,9 +32,18 @@ def _load_backend_package(alias: str = PACKAGE_ALIAS):
 _load_backend_package()
 
 from navigator_app.main import app  # noqa: E402
+from navigator_app.plans import PLAN_STORE  # noqa: E402
 
 
 @pytest.fixture
 def client():
     with TestClient(app) as test_client:
         yield test_client
+
+
+@pytest.fixture(autouse=True)
+def reset_plan_store():
+    """Plans live in process memory; start every test from an empty store."""
+    PLAN_STORE.reset()
+    yield
+    PLAN_STORE.reset()

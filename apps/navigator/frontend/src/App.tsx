@@ -57,8 +57,8 @@ export default function App() {
       .then((p) => {
         if (!cancelled) applyPlan(p)
       })
-      .catch(() => {
-        // plan endpoint lands with S3; until then the panel shows its placeholder
+      .catch((err: unknown) => {
+        if (!cancelled) setMessage(err instanceof Error ? err.message : String(err))
       })
     return () => {
       cancelled = true
