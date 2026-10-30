@@ -10,9 +10,11 @@ Configuration (read on every call, so tests can monkeypatch the environment):
 * ``NAVIGATOR_OVERDUE_DAYS`` — a Segment A HCP is overdue when ``days_since_last_visit`` exceeds this or the HCP
   was never visited (default 30; AC5).
 
-S4 adds ``to_csv(plan)`` here and the ``/export.csv`` route in ``routers/plan.py``.
+S4 adds :func:`plan_to_csv` here and the ``/export.csv`` route in ``routers/plan.py``.
 """
 
+import csv
+import io
 import os
 import threading
 from collections import defaultdict
@@ -334,3 +336,23 @@ def clear_plan(store: DataStore, rep_id: str, as_of: date | None = None, plan_st
     rep_territory(store, rep_id)
     plan_store.clear(rep_id)
     return build_plan(store, rep_id, as_of, plan_store=plan_store)
+
+
+# ---- CSV export (S4 / AC6) ----
+
+CSV_COLUMNS = ("day", "hcp_id", "hcp_name", "specialty", "segment", "score", "reason")
+
+
+def plan_to_csv(plan: Plan) -> str:
+    """RFC 4180 CSV (``\r\n`` rows, quoted where needed): one row per visit, Mon→Fri then score desc, then name."""
+    buffer = io.StringIO()
+    writer = csv.writer(buffer, lineterminator="\r\n")
+    writer.writerow(CSV_COLUMNS)
+    for day in plan.days:
+        for visit in sorted(day.visits, key=lambda v: (-v.score, v.hcp_name)):
+            writer.writerow([day.day, *(getattr(visit, column) for column in CSV_COLUMNS[1:])])
+    return buffer.getvalue()
+
+
+def csv_filename(plan: Plan) -> str:
+    return f"plan_{plan.rep_id}_{plan.week_start.isoformat()}.csv"
