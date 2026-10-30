@@ -175,15 +175,15 @@ Test IDs are the names the build phase must use so the test report (phase 4) can
 
 ## 7. Jira sub-tasks
 
-One sub-task per story, created under MBA-3650 by the requirements phase:
+One sub-task per story, created under MBA-3650 in the requirements phase:
 
 | Story | Sub-task | Builds | Depends on |
 |---|---|---|---|
-| S1 | Territory HCP list | `GET /reps/{rep_id}/hcps` (filters, search, as-of), `HcpList` component | S2 (score columns) |
-| S2 | Visit priority score | `app/scoring.py`, rules config, `GET /scoring/rules`, `GET /scoring/explain` | — |
-| S3 | Weekly plan builder | plan store + `GET/POST/DELETE /reps/{rep_id}/plan…`, warnings, `PlanBuilder` component | S1, S2 |
-| S4 | Plan CSV export | `GET /reps/{rep_id}/plan/export.csv`, Export button | S3 |
-| S5 | Packaging, CI gates, NFRs | Dockerfile, CI container job + coverage gate, perf test, a11y test, README | S1–S4 |
+| S1 | [MBA-3659](https://cog-gtm.atlassian.net/browse/MBA-3659) — Territory HCP list | `GET /reps/{rep_id}/hcps` (filters, search, as-of), `HcpList` component | S2 (score columns) |
+| S2 | [MBA-3660](https://cog-gtm.atlassian.net/browse/MBA-3660) — Visit priority score | `app/scoring.py`, rules config, `GET /scoring/rules`, `GET /scoring/explain` | — |
+| S3 | [MBA-3661](https://cog-gtm.atlassian.net/browse/MBA-3661) — Weekly plan builder | plan store + `GET/POST/DELETE /reps/{rep_id}/plan…`, warnings, `PlanBuilder` component | S1, S2 |
+| S4 | [MBA-3662](https://cog-gtm.atlassian.net/browse/MBA-3662) — Plan CSV export | `GET /reps/{rep_id}/plan/export.csv`, Export button | S3 |
+| S5 | [MBA-3663](https://cog-gtm.atlassian.net/browse/MBA-3663) — Packaging, CI gates, NFRs | Dockerfile, CI container job + coverage gate, perf test, a11y test, README | S1–S4 |
 
 ## 8. Assumptions and open questions
 
