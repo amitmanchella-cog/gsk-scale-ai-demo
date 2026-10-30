@@ -13,7 +13,7 @@ managed infrastructure and governance (playbooks, Automations, ACU caps) that co
 
 ## Pre-demo checklist (do this the day before)
 
-1. Open the estate map and baseline on the parent PR <<PR_PARENT>> (or `main` if merged) and skim
+1. Open the estate map and baseline on the parent PR https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/21 (or `main` if merged) and skim
    [`docs/gxp/ESTATE_MAP.md`](https://github.com/amitmanchella-cog/gsk-scale-ai-demo/blob/devin/1793368744-uc2-gxp-baseline/docs/gxp/ESTATE_MAP.md).
 2. Open DeepWiki https://deepwiki.com/amitmanchella-cog/gsk-scale-ai-demo and confirm it renders the repo
    and the Devin Wiki https://devin-gtm.devinenterprise.com/wiki/amitmanchella-cog/gsk-scale-ai-demo (generated for this demo on 2026-10-30). Present the Devin Wiki; public DeepWiki
