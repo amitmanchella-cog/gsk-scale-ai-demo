@@ -16,8 +16,9 @@ managed infrastructure and governance (playbooks, Automations, ACU caps) that co
 1. Open the estate map and baseline on the parent PR https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/21 (or `main` if merged) and skim
    [`docs/gxp/ESTATE_MAP.md`](https://github.com/amitmanchella-cog/gsk-scale-ai-demo/blob/devin/1793368744-uc2-gxp-baseline/docs/gxp/ESTATE_MAP.md).
 2. Open DeepWiki https://deepwiki.com/amitmanchella-cog/gsk-scale-ai-demo and confirm it renders the repo
-   and the Devin Wiki https://devin-gtm.devinenterprise.com/wiki/amitmanchella-cog/gsk-scale-ai-demo (generated for this demo on 2026-10-30). Present the Devin Wiki; public DeepWiki
-   returned a bot checkpoint (HTTP 429) during the build. If neither loads, show the estate map (tab 3).
+   and the Devin Wiki https://devin-gtm.devinenterprise.com/wiki/amitmanchella-cog/gsk-scale-ai-demo (generated for this demo on 2026-10-30). Present the Devin Wiki while signed in to
+   Devin (it is an org-private index; signed out it shows "Error loading wiki"). Public DeepWiki shows "Repository Not
+   Indexed" — do not present it. If neither loads, show the estate map (tab 3).
 3. Confirm the four fleet PRs are open and green (tab table) and that the QA review comment is on https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18 (URS-NAV-001, QA comment https://github.com/amitmanchella-cog/gsk-scale-ai-demo/pull/18#issuecomment-6524740512).
 4. Confirm the playbook page (org playbook pending approval card — versioned source `docs/gxp/PLAYBOOK_gxp_controlled_document_from_change.md`) loads and the Automation (Automation created disabled, pending approval card — prompt `docs/gxp/automation/devin_automation_prompt.md`) shows **Disabled** (it is
    shown, not fired, in the demo).
@@ -33,7 +34,7 @@ managed infrastructure and governance (playbooks, Automations, ACU caps) that co
 |---|---|---|
 | 1 | Change ticket MBA-3680 (Navigator v0.1, synthetic) | https://cog-gtm.atlassian.net/browse/MBA-3680 |
 | 2 | Devin Wiki — the validated estate (generated for this demo) | https://devin-gtm.devinenterprise.com/wiki/amitmanchella-cog/gsk-scale-ai-demo |
-| 2b | Public DeepWiki (same repo; may show a checkpoint) | https://deepwiki.com/amitmanchella-cog/gsk-scale-ai-demo |
+| 2b | Public DeepWiki (not indexed publicly — don't present) | https://deepwiki.com/amitmanchella-cog/gsk-scale-ai-demo |
 | 3 | Estate map | https://github.com/amitmanchella-cog/gsk-scale-ai-demo/blob/devin/1793368744-uc2-gxp-baseline/docs/gxp/ESTATE_MAP.md |
 | 4 | Baseline (templates, SOPs, approved docs) | https://github.com/amitmanchella-cog/gsk-scale-ai-demo/tree/devin/1793368744-uc2-gxp-baseline/docs/gxp/baseline |
 | 5 | Playbook "GxP controlled document from change" | (org playbook pending approval card — versioned source `docs/gxp/PLAYBOOK_gxp_controlled_document_from_change.md`) |
@@ -65,7 +66,7 @@ managed infrastructure and governance (playbooks, Automations, ACU caps) that co
 
 ## Fallback box — if something is slow or down
 
-- **DeepWiki** shows a checkpoint / not indexed → open tab 3 (ESTATE_MAP.md): "this is the same map, written by Devin into the repo."
+- **Devin Wiki** errors (signed out / not loading) → open tab 3 (ESTATE_MAP.md): "this is the same map, written by Devin into the repo."
 - **A fleet session is still running** → open the finished ones; the PR list (tab 10) is the evidence. Say: "the sessions are independent, one can lag without blocking the others."
 - **Jira unreachable** → the ticket key and link are in every PR body and in the document header.
 - **Approval card not yet clicked for the Automation** → show `docs/gxp/automation/devin_automation_prompt.md` and the GitHub Actions stub `gxp-controlled-docs.yml.example`.
