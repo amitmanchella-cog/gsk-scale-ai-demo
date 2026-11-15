@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import { useState } from 'react';
-import { api } from '../api';
+import { api, reportUrl } from '../api';
 import { months, number, percent, TRIAL_URL } from '../format';
 import type { Suggestion, Suggestions as SuggestionsData, WhatIf } from '../types';
 
@@ -108,6 +108,34 @@ export function Suggestions({ protocolId, data }: { protocolId: string; data: Su
           </p>
         )}
         {whatIf.data && <WhatIfResult result={whatIf.data} />}
+      </div>
+
+      <div className="pda-whatif" data-testid="export">
+        <h3>Design-review report</h3>
+        <p className="pda-muted" data-testid="export-summary">
+          {chosen.length === 0
+            ? 'The report covers the draft as uploaded. Tick changes above to include them as accepted changes.'
+            : `The report includes ${chosen.length} accepted ${chosen.length === 1 ? 'change' : 'changes'}: ${chosen
+                .map((suggestion) => suggestion.title)
+                .join('; ')}.`}
+        </p>
+        <div className="pda-actions">
+          {(['html', 'pdf'] as const).map((format) => (
+            <a
+              key={format}
+              className="pda-button"
+              data-testid={`export-${format}`}
+              href={reportUrl(
+                protocolId,
+                format,
+                chosen.map((suggestion) => suggestion.id),
+              )}
+              download
+            >
+              Export {format.toUpperCase()}
+            </a>
+          ))}
+        </div>
       </div>
     </section>
   );
