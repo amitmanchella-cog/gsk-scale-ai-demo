@@ -1,4 +1,13 @@
-import type { Assessment, CompetingTrials, Protocol, SampleProtocol } from './types';
+import type {
+  Assessment,
+  Change,
+  CompetingTrials,
+  Forecast,
+  Protocol,
+  SampleProtocol,
+  Suggestions,
+  WhatIf,
+} from './types';
 
 export class ApiError extends Error {
   constructor(
@@ -50,4 +59,12 @@ export const api = {
   protocol: (id: string) => request<Protocol>(`/protocols/${id}`),
   assessment: (id: string) => request<Assessment>(`/protocols/${id}/assessment`),
   competing: (id: string) => request<CompetingTrials>(`/protocols/${id}/competing-trials`),
+  forecast: (id: string) => request<Forecast>(`/protocols/${id}/forecast`),
+  suggestions: (id: string) => request<Suggestions>(`/protocols/${id}/suggestions`),
+  whatIf: (id: string, changes: Change[]) =>
+    request<WhatIf>(`/protocols/${id}/what-if`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ changes }),
+    }),
 };

@@ -59,6 +59,8 @@ npx playwright show-report
   iPhone 14 device profile, for the mobile layout).
 - Video, trace and a screenshot are recorded for every test. Results land in `test-results/` and
   the HTML report in `playwright-report/`.
+- The journey test also saves `forecast.png` and `suggestions.png` per engine, so the forecast and
+  what-if panels can be compared across engines.
 - `e2e/author-journey.spec.ts` walks the weak sample protocol; `e2e/resilience.spec.ts` blocks the
   remote's `remoteEntry.js` and checks that the shell still renders.
 
@@ -67,7 +69,8 @@ npx playwright show-report
 ```
 federation.shared.ts        shared singletons, ports and the /api proxy for both packages
 packages/host/src           router.tsx, Shell.tsx, RemoteBoundary.tsx (fallback), AdvisorRoute.tsx
-packages/advisor/src        AdvisorApp.tsx (exposed), api.ts, components/, advisor.css
+packages/advisor/src        AdvisorApp.tsx (exposed), api.ts, components/ (ForecastCard and
+                            Suggestions with the what-if panel are MBA-3860), advisor.css
 e2e/                        Playwright specs
 ```
 

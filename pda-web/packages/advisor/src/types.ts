@@ -121,3 +121,73 @@ export interface CompetingTrials {
   indication: string;
   countries: CountryCompetition[];
 }
+
+export interface TerminationRisk {
+  risk: number;
+  level: Level;
+  baseline_share: number;
+  similar_low_accrual: number;
+  n_similar: number;
+  indication_phase_share: number;
+  adjustment: number;
+  trial_ids: string[];
+}
+
+export interface Forecast {
+  p50_months: number;
+  p90_months: number;
+  target_enrollment: number;
+  sites: number;
+  ramp_months: number;
+  rate_multiplier: number;
+  rate_source: 'similar_trials' | 'indication_phase_benchmark';
+  n_rates: number;
+  median_benchmark_rate: number;
+  indication_phase_median_rate: number | null;
+  simulations: number;
+  seed: number;
+  termination_risk: TerminationRisk;
+}
+
+export interface Change {
+  kind: 'relax_criterion' | 'add_sites';
+  criterion_id?: string | null;
+  lower?: number | null;
+  upper?: number | null;
+  country?: string | null;
+  sites?: number | null;
+}
+
+export interface Evidence {
+  metric: string;
+  label: string;
+  value: number;
+}
+
+export interface Suggestion {
+  id: string;
+  title: string;
+  rationale: string;
+  change: Change;
+  evidence: Evidence[];
+  cited_trial_ids: string[];
+  p50_months_after: number;
+  months_saved: number;
+}
+
+export interface Suggestions {
+  protocol_id: string;
+  baseline: Forecast;
+  suggestions: Suggestion[];
+  rejected: number;
+}
+
+export interface WhatIf {
+  protocol_id: string;
+  baseline: Forecast;
+  scenario: Forecast;
+  applied: { change: Change; summary: string }[];
+  p50_months_saved: number;
+  p90_months_saved: number;
+  elapsed_ms: number;
+}

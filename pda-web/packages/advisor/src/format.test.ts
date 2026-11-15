@@ -1,9 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { ageRange, categoryLabel, indicationLabel, number, phaseLabel } from './format';
+import { ageRange, categoryLabel, indicationLabel, months, number, percent, phaseLabel } from './format';
 
 const population = { sex: 'ALL' as const, healthy_volunteers: false, summary: null };
 
 describe('format', () => {
+  it('formats shares and months', () => {
+    expect(percent(0.0139)).toBe('1.4%');
+    expect(months(70.25)).toBe('70.3 months');
+  });
+
   it('labels indications and phases', () => {
     expect(indicationLabel('type_2_diabetes')).toBe('Type 2 diabetes');
     expect(indicationLabel('copd')).toBe('COPD');
