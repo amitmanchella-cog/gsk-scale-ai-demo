@@ -38,6 +38,7 @@ curl http://localhost:8000/api/protocols/<id>/assessment
 | `GET /api/protocols/{id}/forecast?seed=` | P50 and P90 months to full enrollment from a seeded Monte Carlo simulation, and the risk of termination for low accrual with the trial IDs behind it |
 | `GET /api/protocols/{id}/suggestions` | Design changes that shorten the forecast. Each cites at least 5 benchmark trials and passed the evidence validator |
 | `POST /api/protocols/{id}/what-if` | Body `{"changes": [...]}`. Applies the changes to a copy of the design and returns baseline and scenario forecasts. The stored protocol is not modified |
+| `GET /api/protocols/{id}/report?format=html\|pdf\|json&accept=S1&accept=S4` | The design-review report: design, criterion scores, forecast (draft and with the accepted changes), termination risk, accepted changes and every cited trial. `accept` takes suggestion IDs and may be repeated |
 | `GET /api/samples`, `GET /api/samples/{key}` | The three synthetic sample protocols in `samples/` (`t2d_phase3_weak` is deliberately weak) |
 | `GET /api/health` | Status, provider and benchmark size |
 
@@ -88,6 +89,18 @@ in the dataset or does not support the change, carries an evidence value that di
 recomputation, or has any number in its text that is not one of the computed values. Suggestions
 that fail, or that do not shorten the forecast, are not returned.
 
+### Design-review report (MBA-3863)
+
+- `build_report` collects the values the other endpoints return; `blocks` turns them into
+  headings, paragraphs and tables; `render_html` and `render_pdf` print those blocks. Neither
+  renderer computes a number, so the two formats cannot disagree with each other or with the API.
+- Changes are accepted by suggestion ID, so a report can only contain changes that passed the
+  evidence validator. An unknown ID returns 422.
+- The HTML is one file with inline styles, no scripts and no external assets. The PDF is drawn
+  with ReportLab and its built-in fonts, which cover Windows-1252; any other character in a
+  trial title prints as `?`.
+- The report is generated on request and not stored.
+
 ## Configuration
 
 | Variable | Default | Notes |
@@ -115,6 +128,7 @@ src/pda_api/criteria.py    eligibility parsing, vendored from pda-data so both s
 src/pda_api/benchmark.py   Parquet loader
 src/pda_api/similarity.py  similar-trial search
 src/pda_api/restrictiveness.py, competing.py   scoring and competing trials
+src/pda_api/report.py      design-review report model, HTML and PDF renderers
 src/pda_api/routers/       HTTP endpoints
 samples/                   three synthetic draft protocols
 ```
