@@ -1,0 +1,130 @@
+:root {
+  --pda-ink: #1c2433;
+  --pda-muted: #5b6577;
+  --pda-line: #d9dee8;
+  --pda-surface: #ffffff;
+  --pda-accent: #b8480f;
+  --pda-page: #f4f6fa;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--pda-page);
+  color: var(--pda-ink);
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  line-height: 1.5;
+}
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+.shell-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+  padding: 0.75rem max(1rem, env(safe-area-inset-right)) 0.75rem max(1rem, env(safe-area-inset-left));
+  background: #1c2433;
+  color: #fff;
+}
+
+.shell-brand {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.shell-nav {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.shell-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.9rem;
+  border-radius: 8px;
+  color: #d5dbe7;
+  text-decoration: none;
+}
+
+.shell-nav a.active {
+  background: rgb(255 255 255 / 14%);
+  color: #fff;
+}
+
+.shell-main {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 1.25rem 1rem 2rem;
+}
+
+.shell-footer {
+  padding: 1rem;
+  color: var(--pda-muted);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.shell-card,
+.shell-fallback {
+  padding: 1.25rem;
+  border: 1px solid var(--pda-line);
+  border-radius: 10px;
+  background: var(--pda-surface);
+}
+
+.shell-card h1,
+.shell-fallback h2 {
+  margin-top: 0;
+  font-size: 1.4rem;
+}
+
+.shell-fallback {
+  border-left: 6px solid #b3261e;
+}
+
+.shell-button {
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 1px solid var(--pda-accent);
+  border-radius: 8px;
+  background: var(--pda-accent);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.shell-loading {
+  color: var(--pda-muted);
+}

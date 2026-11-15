@@ -1,0 +1,424 @@
+/* Styles for the Advisor remote. Everything is scoped under .pda-advisor so the
+   remote cannot restyle the host shell. Tokens fall back when run standalone. */
+.pda-advisor {
+  --ink: var(--pda-ink, #1c2433);
+  --muted: var(--pda-muted, #5b6577);
+  --line: var(--pda-line, #d9dee8);
+  --surface: var(--pda-surface, #ffffff);
+  --accent: var(--pda-accent, #b8480f);
+  --high: #b3261e;
+  --high-bg: #fdecea;
+  --moderate: #8a5a00;
+  --moderate-bg: #fff4d6;
+  --low: #1e6b3a;
+  --low-bg: #e6f4ea;
+  color: var(--ink);
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.pda-advisor h2 {
+  font-size: 1.25rem;
+  margin: 0 0 0.25rem;
+}
+
+.pda-advisor h3 {
+  font-size: 1rem;
+  margin: 1.25rem 0 0.5rem;
+}
+
+.pda-advisor p {
+  margin: 0.25rem 0 0.75rem;
+}
+
+.pda-advisor a {
+  color: var(--accent);
+}
+
+.pda-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 1.25rem;
+  min-width: 0;
+}
+
+.pda-muted {
+  color: var(--muted);
+}
+
+.pda-nowrap {
+  white-space: nowrap;
+}
+
+.pda-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.pda-toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pda-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.pda-button--primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.pda-button[aria-disabled='true'],
+.pda-button:disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.pda-visually-hidden:focus-visible + .pda-button,
+.pda-button:focus-visible,
+.pda-sample:focus-visible {
+  outline: 3px solid #2f6fed;
+  outline-offset: 2px;
+}
+
+.pda-drop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border: 2px dashed var(--line);
+  border-radius: 10px;
+}
+
+.pda-drop--over {
+  border-color: var(--accent);
+  background: #fff6f0;
+}
+
+.pda-alert {
+  margin: 1rem 0 0;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  background: var(--high-bg);
+  color: var(--high);
+}
+
+ul.pda-alert,
+.pda-alert ul {
+  padding-left: 2rem;
+}
+
+.pda-samples {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 0.75rem;
+}
+
+.pda-sample {
+  display: grid;
+  gap: 0.35rem;
+  width: 100%;
+  height: 100%;
+  align-content: start;
+  text-align: left;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.pda-sample:hover {
+  border-color: var(--accent);
+}
+
+.pda-sample__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+}
+
+.pda-sample__title {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.pda-tag {
+  display: inline-block;
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: #eef1f6;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pda-tag--high {
+  background: var(--high-bg);
+  color: var(--high);
+}
+
+.pda-tag--moderate {
+  background: var(--moderate-bg);
+  color: var(--moderate);
+}
+
+.pda-tag--low {
+  background: var(--low-bg);
+  color: var(--low);
+}
+
+.pda-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr));
+  gap: 0.75rem 1.5rem;
+  margin: 1rem 0;
+}
+
+.pda-fact dt {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.pda-fact dd {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.pda-details > summary {
+  cursor: pointer;
+  padding: 0.5rem 0;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.pda-columns {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 20rem), 1fr));
+  gap: 0 2rem;
+}
+
+.pda-criteria {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+.pda-criteria li,
+.pda-trials li {
+  margin-bottom: 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+.pda-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr));
+  gap: 0.75rem;
+  margin: 1rem 0;
+}
+
+.pda-stat {
+  display: grid;
+  gap: 0.15rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.pda-stat--high {
+  background: var(--high-bg);
+  border-color: transparent;
+  color: var(--high);
+}
+
+.pda-stat__value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.pda-stat__label {
+  font-size: 0.8rem;
+}
+
+.pda-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 44px;
+}
+
+.pda-check input {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.pda-scores {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.pda-score {
+  padding: 0.9rem 1rem 0.5rem;
+  border: 1px solid var(--line);
+  border-left-width: 6px;
+  border-radius: 8px;
+  min-width: 0;
+}
+
+.pda-score--high {
+  border-left-color: var(--high);
+}
+
+.pda-score--moderate {
+  border-left-color: #d99a00;
+}
+
+.pda-score--low {
+  border-left-color: #3c9a5f;
+}
+
+.pda-score__head {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.pda-score__value {
+  flex: 0 0 3rem;
+  font-size: 1.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.pda-score__text {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.pda-score__text .pda-tag {
+  margin-right: 0.35rem;
+}
+
+.pda-meter {
+  height: 6px;
+  margin: 0.25rem 0;
+  border-radius: 3px;
+  background: #eef1f6;
+  overflow: hidden;
+}
+
+.pda-meter span {
+  display: block;
+  height: 100%;
+  background: currentColor;
+}
+
+.pda-score--high .pda-meter {
+  color: var(--high);
+}
+
+.pda-score--moderate .pda-meter {
+  color: #d99a00;
+}
+
+.pda-score--low .pda-meter {
+  color: #3c9a5f;
+}
+
+.pda-trials {
+  margin: 0.25rem 0 0.5rem;
+  padding-left: 1.25rem;
+  font-size: 0.9rem;
+}
+
+.pda-table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pda-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.pda-table th,
+.pda-table td {
+  padding: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.pda-table .pda-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pda-table__title {
+  display: block;
+  min-width: 14rem;
+  color: var(--muted);
+}
+
+.pda-country h3 {
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .pda-card {
+    padding: 1rem;
+  }
+
+  .pda-toolbar .pda-button {
+    width: 100%;
+  }
+
+  .pda-score__head {
+    gap: 0.6rem;
+  }
+
+  .pda-score__value {
+    flex-basis: 2.4rem;
+    font-size: 1.3rem;
+  }
+}
