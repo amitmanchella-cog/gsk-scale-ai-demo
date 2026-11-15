@@ -76,7 +76,6 @@ export function GraphView({ graph, highlight, onSelect }: Props) {
         nodesConnectable={false}
         nodesDraggable={false}
         onNodeClick={(_, node) => onSelect?.(node.id)}
-        proOptions={{ hideAttribution: true }}
       >
         <Background />
         <Controls showInteractive={false} />

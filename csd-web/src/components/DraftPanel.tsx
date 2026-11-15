@@ -81,7 +81,7 @@ export function DraftPanel({
           <h2 data-testid="draft-title">
             {current.number} {current.title}
           </h2>
-          <ol className="draft-sentences">
+          <ol className="draft-sentences" key={current.number}>
             {current.sentences.map((sentence, index) => {
               const selected = sameIds(sentence.element_ids, highlight)
               return (
