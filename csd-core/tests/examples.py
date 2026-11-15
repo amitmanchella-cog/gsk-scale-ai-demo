@@ -18,6 +18,7 @@ from csd_core.domain.operations import (
     AddEndpoint,
     AddObjective,
     AddVisit,
+    ChangeEndpointTiming,
     ChangePrimaryEndpoint,
     MoveVisit,
     Operation,
@@ -53,6 +54,7 @@ EXAMPLES: dict[str, Operation] = {
             design_activity_id="DA-SPIRO",
         )
     ),
+    "ChangeEndpointTiming": ChangeEndpointTiming(endpoint_id="EP-ACQ5", week=12),
     "ChangePrimaryEndpoint": ChangePrimaryEndpoint(endpoint_id="EP-ACQ5"),
     "AddArm": AddArm(
         arm=Arm(id="ARM-DRUG-200", name="Drug 200 mg", intervention="Drug 200 mg", ratio=1)
