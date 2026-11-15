@@ -24,7 +24,8 @@ PERSON_VALUE = {
     "patient id": re.compile(
         r"\b(?:patient|subject|participant)[\s_-]*(?:id|no|number)\b\s*[:#]?\s*\w+", re.IGNORECASE
     ),
-    "phone": re.compile(r"\+?\d{1,3}[\s-]\(?\d{2,4}\)?[\s-]\d{3,4}[\s-]\d{3,4}"),
+    # The lookarounds keep the digit groups of a UUID primary key from reading as a phone number.
+    "phone": re.compile(r"(?<![\w-])\+?\d{1,3}[\s-]\(?\d{2,4}\)?[\s-]\d{3,4}[\s-]\d{3,4}(?![\w-])"),
 }
 
 
@@ -82,6 +83,7 @@ def test_document_text_is_not_stored(client: TestClient, tmp_path: Path) -> None
         ("note", "reach me at jane.doe@example.org", "email"),
         ("note", "DOB 1980-02-03", "date of birth"),
         ("note", "Patient ID: 00123", "patient id"),
+        ("note", "call +44 20 7946 0958", "phone"),
     ],
 )
 def test_scanner_catches_planted_person_level_data(tmp_path: Path, column: str, value: str, expected: str) -> None:
@@ -90,3 +92,7 @@ def test_scanner_catches_planted_person_level_data(tmp_path: Path, column: str, 
         conn.execute(f"create table planted ({column} text)")
         conn.execute("insert into planted values (?)", (value,))
     assert any(expected in finding for finding in scan(database))
+
+
+def test_scanner_does_not_read_a_uuid_as_a_phone_number() -> None:
+    assert person_values("0f3a9c12-3456-4789-8012-3456789abcde") == []
