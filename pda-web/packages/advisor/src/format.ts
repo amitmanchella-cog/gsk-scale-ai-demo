@@ -46,3 +46,12 @@ export function number(value: number | null | undefined, digits = 0): string {
 }
 
 export const TRIAL_URL = 'https://clinicaltrials.gov/study/';
+
+/** 0.0139 -> "1.4%" */
+export function percent(share: number): string {
+  return `${number(share * 100, 1)}%`;
+}
+
+export function months(value: number): string {
+  return `${number(value, 1)} months`;
+}

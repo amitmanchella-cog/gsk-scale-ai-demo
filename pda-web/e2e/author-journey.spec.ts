@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { expectNoHorizontalOverflow, uploadProtocol } from './fixtures';
 
 test.describe('author journey on the weak sample protocol', () => {
-  test('upload, extracted design, red flags and competing trials', async ({ page }) => {
+  test('upload, design, red flags, forecast, suggestions and what-if', async ({ page }, testInfo) => {
     await uploadProtocol(page);
 
     await test.step('extracted design', async () => {
@@ -40,6 +40,60 @@ test.describe('author journey on the weak sample protocol', () => {
       const driving = top.getByTestId('driving-trials').getByRole('link');
       await expect(driving.first()).toBeVisible();
       await expect(driving.first()).toHaveAttribute('href', /clinicaltrials\.gov\/study\/NCT\d{8}$/);
+    });
+
+    let draftP50 = 0;
+    await test.step('P50, P90 and termination risk', async () => {
+      const forecast = page.getByTestId('forecast');
+      await expect(forecast).toBeVisible();
+      draftP50 = Number((await forecast.getByTestId('forecast-p50').innerText()).replaceAll(',', ''));
+      const p90 = Number((await forecast.getByTestId('forecast-p90').innerText()).replaceAll(',', ''));
+      expect(draftP50).toBeGreaterThan(0);
+      expect(p90).toBeGreaterThan(draftP50);
+      await expect(forecast.getByTestId('termination-risk-value')).toHaveText(/^\d+(\.\d)?%$/);
+      await expect(forecast.getByTestId('termination-risk')).toHaveAttribute('data-level', 'high');
+      await forecast.locator('summary').click();
+      await expect(forecast.getByTestId('termination-trials').getByRole('link').first()).toHaveAttribute(
+        'href',
+        /clinicaltrials\.gov\/study\/NCT\d{8}$/,
+      );
+    });
+
+    await test.step('every suggestion cites at least 5 benchmark trials', async () => {
+      const suggestions = page.getByTestId('suggestion');
+      const count = await suggestions.count();
+      expect(count).toBeGreaterThanOrEqual(2);
+      for (let index = 0; index < count; index += 1) {
+        const suggestion = suggestions.nth(index);
+        await suggestion.locator('summary').click();
+        const ids = await suggestion.getByTestId('citation').allInnerTexts();
+        expect(ids.length, await suggestion.getByTestId('suggestion-title').innerText()).toBeGreaterThanOrEqual(5);
+        expect(new Set(ids).size).toBe(ids.length);
+        expect(ids.every((id) => /^NCT\d{8}$/.test(id))).toBe(true);
+      }
+    });
+
+    await test.step('two changes in what-if improve the forecast in under 5 seconds', async () => {
+      const picks = page.getByTestId('suggestion-pick');
+      await picks.nth(0).check();
+      await picks.nth(1).check();
+      await expect(page.getByTestId('what-if-selected').getByRole('listitem')).toHaveCount(2);
+
+      const started = Date.now();
+      await page.getByTestId('what-if-run').click();
+      await expect(page.getByTestId('what-if-result')).toBeVisible({ timeout: 5000 });
+      expect(Date.now() - started).toBeLessThan(5000);
+
+      const scenarioP50 = Number((await page.getByTestId('what-if-p50').innerText()).replaceAll(',', ''));
+      expect(scenarioP50).toBeLessThan(draftP50);
+      expect(Number(await page.getByTestId('what-if-seconds').innerText())).toBeLessThan(5);
+      expect(Number((await page.getByTestId('what-if-p50-saved').innerText()).replaceAll(',', ''))).toBeLessThan(0);
+      // Kept with the other artifacts so a reviewer can compare the panel across engines.
+      for (const section of ['forecast', 'suggestions']) {
+        const path = testInfo.outputPath(`${section}.png`);
+        await page.getByTestId(section).screenshot({ path });
+        await testInfo.attach(section, { path, contentType: 'image/png' });
+      }
     });
 
     await test.step('competing recruiting trials per planned country', async () => {
