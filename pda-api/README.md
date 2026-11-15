@@ -35,6 +35,9 @@ curl http://localhost:8000/api/protocols/<id>/assessment
 | `GET /api/protocols/{id}` | The stored design |
 | `GET /api/protocols/{id}/assessment?similar=40` | The 20 to 50 most similar benchmark trials (same indication and phase, nearest by enrollment, age window and criteria mix) and a 0-100 restrictiveness score per criterion with the trials that drive it |
 | `GET /api/protocols/{id}/competing-trials` | Recruiting trials of the same indication in each planned country |
+| `GET /api/protocols/{id}/forecast?seed=` | P50 and P90 months to full enrollment from a seeded Monte Carlo simulation, and the risk of termination for low accrual with the trial IDs behind it |
+| `GET /api/protocols/{id}/suggestions` | Design changes that shorten the forecast. Each cites at least 5 benchmark trials and passed the evidence validator |
+| `POST /api/protocols/{id}/what-if` | Body `{"changes": [...]}`. Applies the changes to a copy of the design and returns baseline and scenario forecasts. The stored protocol is not modified |
 | `GET /api/samples`, `GET /api/samples/{key}` | The three synthetic sample protocols in `samples/` (`t2d_phase3_weak` is deliberately weak) |
 | `GET /api/health` | Status, provider and benchmark size |
 
@@ -48,6 +51,42 @@ curl http://localhost:8000/api/protocols/<id>/assessment
   in total than the draft.
 
 70 and above is flagged high, 40 to 69 moderate.
+
+### How the forecast works (MBA-3860)
+
+`forecast.py` runs 2,000 simulations with a fixed seed (`numpy` generator, default seed 20260115),
+so the same design always gives the same P50 and P90. In each simulation:
+
+1. One benchmark accrual rate (patients per site per month) is drawn from the similar trials. If
+   fewer than 10 of them have a usable rate, the draw comes from the indication and phase
+   percentiles in the pda-data `accrual_benchmarks` table.
+2. Every site gets that rate times its own gamma multiplier (mean 1), and its own activation
+   month drawn uniformly over the ramp window. A site enrolls nothing before it opens. The window
+   is 6 months, plus 1 month per 25 sites above 25, at most 18. `ramp=0` gives flat accrual.
+3. The rate is multiplied by an eligibility factor: for each numeric criterion, the share of the
+   similar trials' median window that the draft still allows; the factors are combined as a
+   geometric mean and floored at 0.25.
+4. The result is the month in which cumulative enrollment reaches the target.
+
+Modelling assumptions, not measurements: the ramp shape (ClinicalTrials.gov has no site activation
+dates), the site-to-site spread, and the eligibility factor (it assumes patients are spread evenly
+across a window). The default was stated in the clarifying comment on MBA-3860.
+
+**Termination risk** is the share of similar trials terminated for low accrual, smoothed towards
+the indication and phase share (weighted as 20 extra trials, so a sample with no such termination
+does not report zero), then multiplied by forecast P50 over the similar trials' median duration,
+limited to 0.5-4.
+
+### Suggestions and the evidence validator
+
+`suggestions.py` proposes two kinds of change: relax a numeric criterion scored 70 or more to the
+median window of similar trials, and add sites in the countries where benchmark trials accrued
+fastest (pda-data `country_accrual`). Every number in a suggestion is produced by `metrics_for`
+from the dataset and the seeded forecast; the LLM provider is not involved. `validate` recomputes
+them and rejects a suggestion that cites fewer than 5 benchmark trials, cites a trial that is not
+in the dataset or does not support the change, carries an evidence value that differs from the
+recomputation, or has any number in its text that is not one of the computed values. Suggestions
+that fail, or that do not shorten the forecast, are not returned.
 
 ## Configuration
 
