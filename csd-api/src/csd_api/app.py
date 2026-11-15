@@ -9,6 +9,7 @@ from typing import Annotated, Any
 
 from csd_core.application.study_service import NotHeadError, StudyService
 from csd_core.domain.compare import Comparison
+from csd_core.domain.drafting import Draft, DraftSection, SectionNumber
 from csd_core.domain.operations import Operation, OperationError, operation_types
 from csd_core.domain.schedule import ScheduleGrid, schedule_grid
 from csd_core.domain.scoring import Score
@@ -165,6 +166,23 @@ def create_app(database_url: str | None = None) -> FastAPI:
     @app.get("/versions/{version_id}/schedule", responses=NOT_FOUND)
     def get_schedule(version_id: str, service: Service) -> ScheduleGrid:
         return schedule_grid(service.get_version(version_id).graph)
+
+    # --- M11 drafts ---------------------------------------------------------------
+
+    @app.get("/versions/{version_id}/drafts", responses=NOT_FOUND)
+    def get_drafts(version_id: str, service: Service) -> Draft:
+        """ICH M11 sections 3, 5 and 8 drafted from this version's graph.
+
+        Every sentence lists the IDs of the graph elements it was written from.
+        """
+        return service.draft(version_id)
+
+    @app.get("/versions/{version_id}/drafts/{section}", responses=NOT_FOUND)
+    def get_draft_section(
+        version_id: str, section: SectionNumber, service: Service
+    ) -> DraftSection:
+        """One drafted M11 section: 3, 5 or 8."""
+        return service.draft(version_id, (section,)).sections[0]
 
     # --- compare ------------------------------------------------------------------
 
