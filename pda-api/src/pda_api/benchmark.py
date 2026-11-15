@@ -10,6 +10,7 @@ from typing import Any
 import pyarrow.parquet as pq
 
 THRESHOLD_NAMES = ["hba1c", "bmi", "fev1_pct", "pack_years", "egfr"]
+ACCRUAL_PERCENTILES = (10, 25, 50, 75, 90)
 
 
 @dataclass(frozen=True)
@@ -51,9 +52,41 @@ class RecruitingTrial:
 
 
 @dataclass(frozen=True)
+class AccrualBenchmark:
+    """Accrual-rate distribution of one indication and phase group (pda-data ``accrual_benchmarks``)."""
+
+    indication: str
+    phase_group: int
+    n_trials: int
+    n_with_accrual_rate: int
+    percentiles: dict[int, float] = field(compare=False, hash=False)
+    low_accrual_terminated_share: float = 0.0
+
+
+@dataclass(frozen=True)
+class CountryAccrual:
+    """How trials with sites in one country accrued (pda-data ``country_accrual``)."""
+
+    indication: str
+    phase_group: int
+    country: str
+    n_trials: int
+    n_with_accrual_rate: int
+    accrual_rate_p50: float | None
+
+
+@dataclass(frozen=True)
 class Benchmark:
     trials: tuple[Trial, ...]
     recruiting: tuple[RecruitingTrial, ...]
+    accrual: tuple[AccrualBenchmark, ...] = ()
+    country_accrual: tuple[CountryAccrual, ...] = ()
+
+    def accrual_for(self, indication: str | None, phase_group: int | None) -> AccrualBenchmark | None:
+        for row in self.accrual:
+            if row.indication == indication and row.phase_group == phase_group:
+                return row
+        return None
 
     def trial_ids(self) -> set[str]:
         return {trial.nct_id for trial in self.trials}
@@ -113,4 +146,28 @@ def load_benchmark(directory: Path) -> Benchmark:
         )
         for row in _read(directory / "recruiting_trials.parquet")
     )
-    return Benchmark(trials=trials, recruiting=recruiting)
+    accrual = tuple(
+        AccrualBenchmark(
+            indication=row["indication"],
+            phase_group=int(row["phase_group"]),
+            n_trials=int(row["n_trials"]),
+            n_with_accrual_rate=int(row["n_with_accrual_rate"]),
+            percentiles={
+                p: float(row[f"accrual_rate_p{p}"]) for p in ACCRUAL_PERCENTILES if row.get(f"accrual_rate_p{p}")
+            },
+            low_accrual_terminated_share=float(row.get("low_accrual_terminated_share") or 0.0),
+        )
+        for row in _read(directory / "accrual_benchmarks.parquet")
+    )
+    country_accrual = tuple(
+        CountryAccrual(
+            indication=row["indication"],
+            phase_group=int(row["phase_group"]),
+            country=row["country"],
+            n_trials=int(row["n_trials"]),
+            n_with_accrual_rate=int(row["n_with_accrual_rate"]),
+            accrual_rate_p50=row.get("accrual_rate_p50"),
+        )
+        for row in _read(directory / "country_accrual.parquet")
+    )
+    return Benchmark(trials=trials, recruiting=recruiting, accrual=accrual, country_accrual=country_accrual)

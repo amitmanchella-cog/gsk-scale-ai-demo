@@ -32,7 +32,7 @@ LABELS = {
     "bmi": ("BMI", "kg/m2"),
     "fev1_pct": ("FEV1", "% predicted"),
     "pack_years": ("smoking history", "pack-years"),
-    "egfr": ("eGFR", "mL/min/1.73m2"),
+    "egfr": ("eGFR", "mL/min"),
 }
 PARAMETER_CATEGORY = {
     "hba1c": "hba1c",
@@ -67,7 +67,7 @@ def _window(parameter: str, lower: float | None, upper: float | None) -> str:
     return "no limit"
 
 
-def _trial_window(parameter: str, trial: Trial) -> tuple[float | None, float | None] | None:
+def trial_window(parameter: str, trial: Trial) -> tuple[float | None, float | None] | None:
     if parameter == "age":
         return trial.min_age_years, trial.max_age_years
     return trial.thresholds.get(parameter)
@@ -126,7 +126,7 @@ def _burden(criterion: Criterion, design: ProtocolDesign, similar: list[Trial]) 
 
 
 def _range(criterion: Criterion, parameter: str, similar: list[Trial]) -> CriterionScore | None:
-    compared = [(trial, window) for trial in similar if (window := _trial_window(parameter, trial)) is not None]
+    compared = [(trial, window) for trial in similar if (window := trial_window(parameter, trial)) is not None]
     if len(compared) < MIN_COMPARED:
         return None
     mine = width(parameter, criterion.lower, criterion.upper)
