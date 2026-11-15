@@ -135,3 +135,93 @@ class CompetingTrials(BaseModel):
     protocol_id: str
     indication: str
     countries: list[CountryCompetition]
+
+
+class EligibilityFactor(BaseModel):
+    criterion_id: str
+    parameter: str
+    factor: float = Field(description="Share of the benchmark eligibility window the draft still allows, 0-1")
+    reference_lower: float | None
+    reference_upper: float | None
+    n_compared: int
+
+
+class TerminationRisk(BaseModel):
+    risk: float = Field(ge=0, le=1, description="Estimated probability of termination for low accrual")
+    level: Level
+    baseline_share: float = Field(description="Share of similar trials terminated for low accrual, smoothed")
+    similar_low_accrual: int
+    n_similar: int
+    indication_phase_share: float = Field(description="Same share over every trial of the indication and phase")
+    adjustment: float = Field(description="Forecast P50 over the similar trials' median duration, limited to 0.5-4")
+    trial_ids: list[str] = Field(description="Benchmark trials terminated for low accrual behind the estimate")
+
+
+class Forecast(BaseModel):
+    p50_months: float
+    p90_months: float
+    target_enrollment: int
+    sites: int
+    ramp_months: float
+    rate_multiplier: float = Field(description="Applied to benchmark accrual rates for narrow eligibility windows")
+    eligibility_factors: list[EligibilityFactor]
+    rate_source: Literal["similar_trials", "indication_phase_benchmark"]
+    n_rates: int
+    median_benchmark_rate: float = Field(description="Median patients per site per month of the rates drawn from")
+    indication_phase_median_rate: float | None
+    simulations: int
+    seed: int
+    termination_risk: TerminationRisk
+
+
+class Change(BaseModel):
+    kind: Literal["relax_criterion", "add_sites"]
+    criterion_id: str | None = None
+    lower: float | None = None
+    upper: float | None = None
+    country: str | None = None
+    sites: int | None = Field(default=None, ge=1, le=500)
+
+
+class Evidence(BaseModel):
+    metric: str = Field(description="Name of the code path that computed the value from the dataset")
+    label: str
+    value: float
+
+
+class Suggestion(BaseModel):
+    id: str
+    title: str
+    rationale: str
+    change: Change
+    evidence: list[Evidence]
+    cited_trial_ids: list[str]
+    p50_months_after: float
+    months_saved: float
+
+
+class Suggestions(BaseModel):
+    protocol_id: str
+    baseline: Forecast
+    suggestions: list[Suggestion]
+    rejected: int = Field(description="Candidates dropped because they failed the evidence validator")
+
+
+class WhatIfRequest(BaseModel):
+    changes: list[Change] = Field(min_length=1, max_length=20)
+    seed: int | None = None
+
+
+class AppliedChange(BaseModel):
+    change: Change
+    summary: str
+
+
+class WhatIf(BaseModel):
+    protocol_id: str
+    baseline: Forecast
+    scenario: Forecast
+    applied: list[AppliedChange]
+    p50_months_saved: float
+    p90_months_saved: float
+    elapsed_ms: float
