@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from collections.abc import Mapping
+
 from fastapi.testclient import TestClient
 
 from csd_api.app import create_app
@@ -12,7 +14,7 @@ REFERENCE_SCORE = {"visit_count": 7, "patient_time_minutes": 640, "cost_proxy": 
 FEWER_SCORE = {"visit_count": 6, "patient_time_minutes": 550, "cost_proxy": 1940.0}
 
 
-def branch(client: TestClient, version_id: str, name: str, operation: dict[str, object]) -> str:
+def branch(client: TestClient, version_id: str, name: str, operation: Mapping[str, object]) -> str:
     created = client.post(f"/versions/{version_id}/branches", json={"name": name})
     assert created.status_code == 201, created.text
     applied = client.post(
