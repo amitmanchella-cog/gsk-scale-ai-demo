@@ -1,0 +1,58 @@
+DRAFT CLINICAL STUDY PROTOCOL - SYNOPSIS
+SYNTHETIC DOCUMENT FOR DEMONSTRATION ONLY. NOT A REAL STUDY.
+
+Protocol title: A Phase 3, Randomized, Double-Blind, Placebo-Controlled Study of Once-Weekly SYN-4471 Added to Metformin in Adults with Type 2 Diabetes Mellitus
+Protocol number: SYN-T2D-301
+Version: Draft 0.3
+Indication: Type 2 diabetes mellitus
+Phase: 3
+
+1. BACKGROUND AND RATIONALE
+SYN-4471 is a fictional once-weekly injectable incretin co-agonist. Phase 2 data (synthetic) showed a dose-dependent reduction in HbA1c over 26 weeks. This study is intended to confirm glycaemic efficacy and safety when SYN-4471 is added to stable metformin therapy.
+
+2. OBJECTIVES AND ENDPOINTS
+Primary objective: to demonstrate superiority of SYN-4471 over placebo in change from baseline in HbA1c at Week 52.
+Key secondary endpoints: change in body weight, proportion of participants reaching HbA1c below 7.0%, change in fasting plasma glucose.
+Safety endpoints: adverse events, hypoglycaemia episodes, laboratory parameters.
+
+3. STUDY DESIGN
+Multicentre, randomized (1:1), double-blind, placebo-controlled, parallel-group study with a 2-week screening period, a 52-week treatment period and a 4-week safety follow-up.
+
+Study population: Middle-aged adults with type 2 diabetes inadequately controlled on metformin alone
+Planned enrollment: Approximately 900 participants will be randomized.
+Planned countries and sites: The study will be conducted at 8 sites in 2 countries: United States (5 sites) and China (3 sites).
+Planned recruitment period: 12 months
+
+4. INCLUSION CRITERIA
+1. Male or female participants aged 40 to 60 years at screening.
+2. Diagnosis of type 2 diabetes mellitus for at least 5 years.
+3. HbA1c between 7.5% and 8.5% at screening.
+4. BMI between 27 and 32 kg/m2.
+5. On a stable dose of metformin of at least 1500 mg per day for at least 6 months before screening.
+6. eGFR of at least 90 mL/min/1.73m2.
+7. Fasting C-peptide above the lower limit of normal.
+8. Willing and able to perform self-monitoring of blood glucose four times daily and to keep an electronic diary.
+9. Able to provide written informed consent.
+
+5. EXCLUSION CRITERIA
+1. Type 1 diabetes or secondary forms of diabetes.
+2. Any use of insulin, other than short-term use during hospitalisation, within 12 months before screening.
+3. Treatment with any glucose-lowering medicine other than metformin within 6 months before screening.
+4. History of myocardial infarction, stroke, unstable angina or heart failure at any time.
+5. Uncontrolled hypertension, defined as systolic blood pressure above 140 mmHg at screening.
+6. ALT or AST more than 1.5 times the upper limit of normal.
+7. History of pancreatitis or gallbladder disease.
+8. History of any malignancy at any time.
+9. Diabetic retinopathy of any grade.
+10. Current smokers, or former smokers who stopped less than 5 years ago.
+11. Alcohol consumption of more than 7 units per week.
+12. Pregnant or breastfeeding women, or women of childbearing potential not using highly effective contraception.
+13. Any psychiatric disorder, including treated depression.
+14. Participation in another clinical trial within 12 months before screening.
+15. Night-shift workers or participants planning travel across more than two time zones during the study.
+
+6. STUDY TREATMENT
+SYN-4471 or matching placebo administered subcutaneously once weekly for 52 weeks, added to background metformin.
+
+7. STATISTICAL CONSIDERATIONS
+A sample of 900 randomized participants gives 90% power to detect a treatment difference of 0.4% in HbA1c, assuming a standard deviation of 1.1% and 15% dropout.

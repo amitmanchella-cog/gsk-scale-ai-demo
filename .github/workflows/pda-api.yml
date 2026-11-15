@@ -1,0 +1,54 @@
+name: pda-api
+
+on:
+  pull_request:
+    paths:
+      - "pda-api/**"
+      - ".github/workflows/pda-api.yml"
+  push:
+    branches: [main]
+    paths:
+      - "pda-api/**"
+      - ".github/workflows/pda-api.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pda-api-${{ github.ref }}
+  cancel-in-progress: true
+
+defaults:
+  run:
+    working-directory: pda-api
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: pda-api/pyproject.toml
+      - name: Install
+        run: python -m pip install --upgrade pip "setuptools>=84.1" && make install
+      - name: Lint (ruff)
+        run: make lint
+      - name: Type check (mypy)
+        run: make typecheck
+      - name: Unit tests with coverage
+        run: pytest --cov-report=xml
+      - name: Dependency audit (pip-audit)
+        run: make audit
+      - name: SBOM (CycloneDX)
+        run: make sbom
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pda-api-sbom
+          path: pda-api/sbom.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pda-api-coverage
+          path: pda-api/coverage.xml

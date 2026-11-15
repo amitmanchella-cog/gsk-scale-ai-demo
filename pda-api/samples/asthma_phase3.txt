@@ -1,0 +1,46 @@
+DRAFT CLINICAL STUDY PROTOCOL - SYNOPSIS
+SYNTHETIC DOCUMENT FOR DEMONSTRATION ONLY. NOT A REAL STUDY.
+
+Protocol title: A Phase 3, Randomized, Double-Blind, Active-Controlled Study of Inhaled SYN-2205/Formoterol Compared With Budesonide/Formoterol in Adolescents and Adults with Moderate to Severe Asthma
+Protocol number: SYN-AST-302
+Version: Draft 0.2
+Indication: Asthma
+Phase: 3
+
+1. BACKGROUND AND RATIONALE
+SYN-2205 is a fictional inhaled corticosteroid designed for once-daily dosing. This study compares a fixed-dose combination of SYN-2205 and formoterol with an established twice-daily combination.
+
+2. OBJECTIVES AND ENDPOINTS
+Primary objective: to show non-inferiority of SYN-2205/formoterol to budesonide/formoterol in change from baseline in trough FEV1 at Week 24.
+Key secondary endpoints: annualised rate of severe exacerbations, Asthma Control Questionnaire score, rescue medication use.
+Safety endpoints: adverse events, oral candidiasis, morning serum cortisol.
+
+3. STUDY DESIGN
+Multicentre, randomized (1:1), double-blind, double-dummy, parallel-group study with a 4-week run-in period, a 24-week treatment period and a 2-week follow-up.
+
+Study population: Adolescents and adults with asthma not adequately controlled on medium-dose inhaled corticosteroids
+Planned enrollment: Approximately 640 participants will be randomized.
+Planned countries and sites: The study will be conducted at 95 sites in 6 countries: United States (30 sites), Germany (15 sites), Poland (15 sites), Spain (12 sites), Japan (13 sites) and Argentina (10 sites).
+Planned recruitment period: 14 months
+
+4. INCLUSION CRITERIA
+- Participants aged 12 years or older at screening.
+- Physician-diagnosed asthma for at least 12 months.
+- Pre-bronchodilator FEV1 between 40% and 90% of predicted normal.
+- Treated with a medium or high dose of inhaled corticosteroid, with or without a long-acting beta-agonist, for at least 3 months.
+- At least one asthma exacerbation requiring systemic corticosteroids in the previous 12 months.
+- Able to provide written informed consent, or assent with consent of a parent or guardian.
+
+5. EXCLUSION CRITERIA
+- Current smokers or former smokers with a smoking history of more than 10 pack-years.
+- Diagnosis of COPD or another clinically significant lung disease.
+- Respiratory infection within 4 weeks before screening.
+- Treatment with a biologic for asthma within 6 months before screening.
+- Pregnant or breastfeeding women.
+- Known hypersensitivity to any component of the study treatments.
+
+6. STUDY TREATMENT
+SYN-2205/formoterol once daily or budesonide/formoterol twice daily by dry-powder inhaler for 24 weeks, with matching placebo inhalers to maintain the blind.
+
+7. STATISTICAL CONSIDERATIONS
+A sample of 640 randomized participants gives 90% power to show non-inferiority with a margin of 50 mL in trough FEV1, assuming a standard deviation of 180 mL and 10% dropout.

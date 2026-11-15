@@ -1,0 +1,48 @@
+DRAFT CLINICAL STUDY PROTOCOL - SYNOPSIS
+SYNTHETIC DOCUMENT FOR DEMONSTRATION ONLY. NOT A REAL STUDY.
+
+Protocol title: A Phase 2b, Randomized, Double-Blind, Placebo-Controlled, Dose-Ranging Study of Oral SYN-9130 in Patients with Moderate to Severe COPD
+Protocol number: SYN-COPD-201
+Version: Draft 0.4
+Indication: Chronic obstructive pulmonary disease (COPD)
+Phase: 2b
+
+1. BACKGROUND AND RATIONALE
+SYN-9130 is a fictional oral anti-inflammatory agent. This dose-ranging study will select the dose to take into phase 3 by assessing lung function and exacerbations over 24 weeks.
+
+2. OBJECTIVES AND ENDPOINTS
+Primary objective: to characterise the dose response of SYN-9130 on change from baseline in pre-dose FEV1 at Week 24.
+Key secondary endpoints: rate of moderate or severe exacerbations, St George's Respiratory Questionnaire total score, rescue medication use.
+Safety endpoints: adverse events, weight loss, gastrointestinal tolerability.
+
+3. STUDY DESIGN
+Multicentre, randomized (1:1:1:1), double-blind, placebo-controlled, parallel-group study with a 2-week run-in period, a 24-week treatment period and a 4-week follow-up.
+
+Study population: Current or former smokers with moderate to severe COPD and a history of exacerbations
+Planned enrollment: Approximately 320 participants will be randomized.
+Planned countries and sites: The study will be conducted at 48 sites in 4 countries: United States (20 sites), United Kingdom (10 sites), Germany (10 sites) and Bulgaria (8 sites).
+Planned recruitment period: 12 months
+
+4. INCLUSION CRITERIA
+- Male or female participants aged 40 to 80 years at screening.
+- Clinical diagnosis of COPD for at least 12 months.
+- Post-bronchodilator FEV1 between 30% and 80% of predicted normal.
+- Current or former smokers with a smoking history of at least 10 pack-years.
+- At least one moderate or severe COPD exacerbation in the previous 12 months.
+- On stable inhaled maintenance therapy for at least 3 months before screening.
+- Able to provide written informed consent.
+
+5. EXCLUSION CRITERIA
+- Current diagnosis of asthma.
+- COPD exacerbation or lower respiratory tract infection within 6 weeks before screening.
+- Long-term oxygen therapy for more than 15 hours per day.
+- Clinically significant cardiovascular disease, including myocardial infarction within 6 months before screening.
+- Moderate or severe hepatic impairment.
+- Pregnant or breastfeeding women.
+- Participation in another clinical trial of an investigational drug within 30 days before screening.
+
+6. STUDY TREATMENT
+SYN-9130 at one of three dose levels or matching placebo, taken orally once daily for 24 weeks, added to stable inhaled maintenance therapy.
+
+7. STATISTICAL CONSIDERATIONS
+A sample of 320 randomized participants (80 per arm) gives 85% power to detect a dose-response trend, assuming a maximum effect of 80 mL in pre-dose FEV1, a standard deviation of 200 mL and 10% dropout.

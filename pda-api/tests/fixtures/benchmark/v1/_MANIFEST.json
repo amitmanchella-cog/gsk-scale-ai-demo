@@ -1,0 +1,15 @@
+{
+  "dataset_version": "1",
+  "tables": {
+    "trial_features": {
+      "rows": 2051
+    },
+    "recruiting_trials": {
+      "rows": 1285
+    }
+  },
+  "source": {
+    "api": "https://clinicaltrials.gov/api/v2/studies",
+    "fetched_at": "2026-11-15T17:26:32Z"
+  }
+}

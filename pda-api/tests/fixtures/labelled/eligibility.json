@@ -1,0 +1,52 @@
+[
+  {
+    "id": "L01",
+    "text": "Inclusion Criteria:\n- Adults aged 18 to 75 years\n- HbA1c between 7.0% and 10.0%\n- BMI no more than 45 kg/m2\nExclusion Criteria:\n- eGFR < 30 mL/min/1.73m2\n- Pregnant or breastfeeding women",
+    "expected": {"min_age": 18, "max_age": 75, "n_inclusion": 3, "n_exclusion": 2, "hba1c_lower": 7.0, "hba1c_upper": 10.0, "bmi_upper": 45, "egfr_lower": 30, "categories": ["age", "hba1c", "bmi", "egfr", "pregnancy"]}
+  },
+  {
+    "id": "L02",
+    "text": "Inclusion Criteria\n1. Men and women 40 years of age or older\n2. Post-bronchodilator FEV1 less than 80% of predicted\n3. Smoking history of at least 10 pack-years\nExclusion Criteria\n1. Current diagnosis of asthma\n2. Long-term oxygen therapy\n3. Myocardial infarction within the last 6 months",
+    "expected": {"min_age": 40, "n_inclusion": 3, "n_exclusion": 3, "fev1_pct_upper": 80, "pack_years_lower": 10, "categories": ["age", "fev1_pct", "pack_years", "other", "oxygen_therapy", "cardiovascular"]}
+  },
+  {
+    "id": "L03",
+    "text": "Inclusion Criteria:\n* Age ≥ 12 years\n* Pre-bronchodilator FEV1 ≥ 50% and ≤ 85% predicted\n* Documented asthma for 1 year\nExclusion Criteria:\n* Smoking history > 10 pack-years\n* Known hypersensitivity to the study drug",
+    "expected": {"min_age": 12, "n_inclusion": 3, "n_exclusion": 2, "fev1_pct_lower": 50, "fev1_pct_upper": 85, "pack_years_upper": 10, "categories": ["age", "fev1_pct", "other", "pack_years", "hypersensitivity"]}
+  },
+  {
+    "id": "L04",
+    "text": "Inclusion Criteria:\n- Participants must be between 30 and 70 years old\n- Glycated haemoglobin of at least 7.5% and no more than 11%\nExclusion Criteria:\n- History of any malignancy within 5 years\n- Active hepatitis B infection\n- Participation in another clinical trial within 30 days",
+    "expected": {"min_age": 30, "max_age": 70, "n_inclusion": 2, "n_exclusion": 3, "hba1c_lower": 7.5, "hba1c_upper": 11, "categories": ["age", "hba1c", "malignancy", "hepatic", "other_trial"]}
+  },
+  {
+    "id": "L05",
+    "text": "Key Inclusion Criteria:\n1) Aged 18 years and above\n2) Body mass index 25 to 40 kg/m2\n3) Treated with metformin at a stable dose for 3 months\nKey Exclusion Criteria:\n1) Estimated glomerular filtration rate below 45 mL/min/1.73m2\n2) Use of insulin in the past year",
+    "expected": {"min_age": 18, "n_inclusion": 3, "n_exclusion": 2, "bmi_lower": 25, "bmi_upper": 40, "egfr_lower": 45, "categories": ["age", "bmi", "prior_therapy", "egfr", "insulin_use"]}
+  },
+  {
+    "id": "L06",
+    "text": "Inclusion Criteria:\n- Male or female, 45-80 years of age\n- Current or ex-smokers with more than 20 pack years\n- FEV1 30% to 70% predicted\nExclusion Criteria:\n- Pneumonia in the 3 months before screening\n- Severe psychiatric illness such as major depression",
+    "expected": {"min_age": 45, "max_age": 80, "n_inclusion": 3, "n_exclusion": 2, "pack_years_lower": 20, "fev1_pct_lower": 30, "fev1_pct_upper": 70, "categories": ["age", "pack_years", "fev1_pct", "infection", "psychiatric"]}
+  },
+  {
+    "id": "L07",
+    "text": "Inclusion Criteria:\n- Adults up to 65 years of age\n- A1C > 8%\nExclusion Criteria:\n- Heart failure NYHA class III or IV\n- Alcohol or drug abuse\n- Women who are pregnant",
+    "expected": {"max_age": 65, "n_inclusion": 2, "n_exclusion": 3, "hba1c_lower": 8, "categories": ["age", "hba1c", "cardiovascular", "substance_use", "pregnancy"]}
+  },
+  {
+    "id": "L08",
+    "text": "Inclusion Criteria:\n- Children and adolescents aged 6 to 17 years\n- At least two asthma exacerbations in the previous year\n- Blood eosinophil count of 300 cells per microlitre or more\nExclusion Criteria:\n- Treatment with a monoclonal antibody in the last 4 months",
+    "expected": {"min_age": 6, "max_age": 17, "n_inclusion": 3, "n_exclusion": 1, "categories": ["age", "exacerbation_history", "eosinophils", "prior_therapy"]}
+  },
+  {
+    "id": "L09",
+    "text": "Inclusion Criteria:\n- Age 21 years or older\n- HbA1c ≤ 9.5%\n- Signed informed consent\nExclusion Criteria:\n- BMI > 40 kg/m2\n- eGFR less than 60 mL/min/1.73m2\n- ALT more than 3 times the upper limit of normal",
+    "expected": {"min_age": 21, "n_inclusion": 3, "n_exclusion": 3, "hba1c_upper": 9.5, "bmi_upper": 40, "egfr_lower": 60, "categories": ["age", "hba1c", "consent", "bmi", "egfr", "hepatic"]}
+  },
+  {
+    "id": "L10",
+    "text": "Inclusion Criteria:\n- Patients over 50 years old with COPD\n- FEV1 below 60% of predicted normal\nExclusion Criteria:\n- Age below 50 years\n- Supplemental oxygen use\n- Renal impairment requiring dialysis\n- Allergic to any excipient of the study drug",
+    "expected": {"min_age": 50, "n_inclusion": 2, "n_exclusion": 4, "fev1_pct_upper": 60, "categories": ["age", "fev1_pct", "age", "oxygen_therapy", "renal", "hypersensitivity"]}
+  }
+]
