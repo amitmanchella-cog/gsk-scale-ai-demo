@@ -19,6 +19,7 @@ from csd_core.domain.models import (
     Objective,
     ScheduledActivity,
     StudyGraph,
+    Timepoint,
     Visit,
 )
 from csd_core.domain.validity import check_validity
@@ -166,6 +167,30 @@ class AddEndpoint(Model):
         return _with_intent(graph, endpoints=(*graph.intent.endpoints, self.endpoint))
 
 
+class ChangeEndpointTiming(Model):
+    """Move an endpoint's timepoint to another study week."""
+
+    type: Literal["ChangeEndpointTiming"] = "ChangeEndpointTiming"
+    endpoint_id: str
+    week: int = Field(ge=0)
+
+    def apply(self, graph: StudyGraph) -> StudyGraph:
+        endpoint = _require_endpoint(graph, self.endpoint_id)
+        if endpoint.timepoint.week == self.week:
+            raise OperationError(
+                f"endpoint {self.endpoint_id} is already timed at Week {self.week}"
+            )
+        if self.week > graph.duration_weeks:
+            raise OperationError(
+                f"Week {self.week} is after the end of the {graph.duration_weeks} week study"
+            )
+        retimed = endpoint.model_copy(update={"timepoint": Timepoint(week=self.week)})
+        return _with_intent(
+            graph,
+            endpoints=tuple(retimed if e.id == retimed.id else e for e in graph.intent.endpoints),
+        )
+
+
 class ChangePrimaryEndpoint(Model):
     """Promote an endpoint to primary; the previous primary becomes secondary."""
 
@@ -202,6 +227,7 @@ Operation = Annotated[
     | AddObjective
     | AddDesignActivity
     | AddEndpoint
+    | ChangeEndpointTiming
     | ChangePrimaryEndpoint
     | AddArm,
     Field(discriminator="type"),

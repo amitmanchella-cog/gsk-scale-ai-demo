@@ -21,6 +21,7 @@ from csd_core.domain.operations import (
     AddEndpoint,
     AddObjective,
     AddVisit,
+    ChangeEndpointTiming,
     ChangePrimaryEndpoint,
     MoveVisit,
     Operation,
@@ -61,6 +62,7 @@ def operations(draw: st.DrawFn, graph: StudyGraph) -> Operation:
                 "AddObjective",
                 "AddDesignActivity",
                 "AddEndpoint",
+                "ChangeEndpointTiming",
                 "ChangePrimaryEndpoint",
                 "AddArm",
             ]
@@ -120,6 +122,11 @@ def operations(draw: st.DrawFn, graph: StudyGraph) -> Operation:
                 timepoint=Timepoint(week=draw(st.integers(0, 60))),
                 design_activity_id=draw(st.sampled_from(design_ids)),
             )
+        )
+    if kind == "ChangeEndpointTiming":
+        return ChangeEndpointTiming(
+            endpoint_id=draw(st.sampled_from([e.id for e in graph.intent.endpoints])),
+            week=draw(st.integers(0, 60)),
         )
     if kind == "ChangePrimaryEndpoint":
         return ChangePrimaryEndpoint(

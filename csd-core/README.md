@@ -59,7 +59,7 @@ assert service.replay(v1.id) == v1.graph
 
 `AddVisit`, `MoveVisit`, `SetVisitWindow`, `RemoveVisit`, `AddActivity`, `ScheduleActivity`,
 `UnscheduleActivity`, `AddObjective`, `AddDesignActivity`, `AddEndpoint`,
-`ChangePrimaryEndpoint`, `AddArm`.
+`ChangeEndpointTiming`, `ChangePrimaryEndpoint`, `AddArm`.
 
 An operation is applied to the head version of a branch. If it does not fit the graph, or
 its result would break a structural validity rule (unique IDs, exactly one primary endpoint,
@@ -80,6 +80,18 @@ After every operation the intent-vs-plan rules are recomputed and stored on the 
 The reference study has zero findings. `csd_core.reference.defects.DEFECT_CATALOGUE` holds 26
 seeded broken variants (8 untraced, 10 unmet timepoint, 8 missing standard), each with the
 exact finding IDs it must produce; the tests assert all of them.
+
+### Flagship scenario
+
+```python
+v1 = service.apply(v0.id, MoveVisit(visit_id="V-W12", day=99))
+[f.id for f in v1.findings]  # ['unmet_endpoint_timepoint:EP-FEV1'] (a warning, the version exists)
+v2 = service.apply(v1.id, ChangeEndpointTiming(endpoint_id="EP-FEV1", week=14))
+v2.findings  # () Week 14 is Day 99
+```
+
+`csd_core.domain.schedule.schedule_grid(graph)` returns the schedule-of-activities grid
+(activities as rows, visits by study day as columns).
 
 ## Conventions
 
