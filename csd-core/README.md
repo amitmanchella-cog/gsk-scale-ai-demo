@@ -97,3 +97,19 @@ v2.findings  # () Week 14 is Day 99
 
 - An endpoint timepoint is a study week. Its target day is `7 x week + 1` (Week 12 = Day 85).
 - Version IDs are deterministic hashes of (study, parent, branch, operation).
+
+## Branches, scores and compare
+
+```python
+service.create_branch(root.id, "fewer-visits")            # from any version, head or not
+fewer = service.apply(root.id, RemoveVisit(visit_id="V-W4"), branch="fewer-visits")
+service.score(fewer.id)        # visit_count=6, patient_time_minutes=550, cost_proxy=1940
+service.compare(root.id, fewer.id)   # both scores, both findings, delta, element changes
+```
+
+- A branch starts with its base version as its head and creates no version. The first
+  operation names the branch; later ones follow the version's own branch.
+- Scores (lower is better): visit count; total patient time, the sum of visit durations
+  where a visit lasts as long as the activities scheduled at it; cost proxy, the sum of
+  the unit costs of every scheduled activity, per participant.
+- The reference study scores 7 visits, 640 minutes and 2160.
