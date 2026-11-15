@@ -1,0 +1,21 @@
+# Starts the API and the web app together: http://localhost:3000
+services:
+  api:
+    build: ../pda-api
+    ports:
+      - '8000:8000'
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  web:
+    build: .
+    environment:
+      PDA_API_URL: http://api:8000
+    ports:
+      - '3000:3000'
+      - '3001:3001'
+    depends_on:
+      api:
+        condition: service_healthy

@@ -1,0 +1,58 @@
+{
+  "name": "pda-web",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Protocol Design Advisor web app: host shell and Advisor remote (Module Federation)",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -n advisor,host \"npm run dev -w @pda/advisor\" \"npm run dev -w @pda/host\"",
+    "build": "npm run build -w @pda/advisor && npm run build -w @pda/host",
+    "preview": "concurrently -n advisor,host \"npm run preview -w @pda/advisor\" \"npm run preview -w @pda/host\"",
+    "lint": "eslint . && prettier --check .",
+    "typecheck": "npm run typecheck -w @pda/advisor && npm run typecheck -w @pda/host && tsc -p e2e/tsconfig.json",
+    "test": "vitest run --coverage",
+    "e2e": "playwright test",
+    "sbom": "npx --yes @cyclonedx/cyclonedx-npm@7.0.1 --output-format JSON --output-file sbom.json",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@module-federation/rsbuild-plugin": "^2.9.3",
+    "@playwright/test": "^1.65.1",
+    "@rsbuild/core": "^2.3.2",
+    "@rsbuild/plugin-react": "^2.1.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.10",
+    "@types/node": "^26.6.6",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitest/coverage-v8": "^5.1.0",
+    "concurrently": "^10.0.7",
+    "eslint": "^10.15.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "jsdom": "^31.0.1",
+    "prettier": "^3.10.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.2",
+    "vitest": "^5.1.0"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.107.1",
+    "@tanstack/react-router": "^1.170.46",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "type": "module",
+  "overrides": {
+    "@typescript-eslint/typescript-estree": {
+      "minimatch": "^11.0.8"
+    }
+  }
+}

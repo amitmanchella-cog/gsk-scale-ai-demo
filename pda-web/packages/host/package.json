@@ -1,0 +1,12 @@
+{
+  "name": "@pda/host",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "rsbuild dev",
+    "build": "rsbuild build",
+    "preview": "rsbuild preview",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "type": "module"
+}
