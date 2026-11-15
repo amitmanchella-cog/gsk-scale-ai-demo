@@ -33,6 +33,10 @@ synthetic reference study is seeded as study `asthma-ref`.
 | `GET /studies/{study_id}/branches` | Branches and their heads |
 | `GET /versions/{version_id}` | A version: graph, operation, parent and findings |
 | `POST /versions/{version_id}/operations` | Apply a typed operation to a branch head; returns the new version (201) |
+| `POST /versions/{version_id}/operations?branch=<name>` | The same, extending the named branch (its first operation is posted to its base version) |
+| `POST /versions/{version_id}/branches` | Start a branch `{"name": ...}` from any version, head or not (201). No version is created |
+| `GET /versions/{version_id}/score` | Visit count, total patient time in minutes and cost proxy |
+| `GET /compare?left=<id>&right=<id>` | Two versions side by side: scores, findings, delta (right minus left) and element changes |
 | `GET /versions/{version_id}/findings` | Findings of a version |
 | `GET /versions/{version_id}/schedule` | Schedule-of-activities grid |
 
