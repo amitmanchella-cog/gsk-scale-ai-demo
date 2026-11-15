@@ -7,6 +7,7 @@ from hypothesis import strategies as st
 
 from csd_core.adapters.memory_store import InMemoryVersionStore
 from csd_core.application.study_service import StudyService
+from csd_core.domain.findings import compute_findings
 from csd_core.domain.operations import OperationError
 from csd_core.domain.validity import check_validity
 from csd_core.reference.asthma import REFERENCE_STUDY_ID, reference_study
@@ -35,6 +36,10 @@ def test_any_sequence_of_valid_operations_keeps_the_graph_valid_and_replayable(
 
         # Any accepted operation produces a valid graph in a new version.
         assert check_validity(child.graph) == []
+        # Findings are recomputed for the new version and only point at its elements.
+        assert child.findings == compute_findings(child.graph)
+        for finding in child.findings:
+            assert set(finding.element_ids) <= child.graph.element_ids()
         # Every version keeps its parent link, and the parent is untouched.
         assert child.parent_id == head.id
         assert child.seq == head.seq + 1

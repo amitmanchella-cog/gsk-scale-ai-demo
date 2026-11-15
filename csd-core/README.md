@@ -16,11 +16,11 @@ All data is synthetic. No person-level data is stored.
 
 ```
 src/csd_core/
-  domain/        models, operations, structural validity, versions   (no I/O)
+  domain/        models, operations, structural validity, findings, versions   (no I/O)
   ports/         VersionStore protocol
   adapters/      InMemoryVersionStore
   application/   StudyService: create_study, apply, history, replay
-  reference/     the synthetic Phase 3 asthma reference study
+  reference/     the synthetic Phase 3 asthma reference study and the seeded defect catalogue
 ```
 
 The core imports no storage, web or agent framework. `lint-imports` enforces this and the
@@ -65,6 +65,21 @@ An operation is applied to the head version of a branch. If it does not fit the 
 its result would break a structural validity rule (unique IDs, exactly one primary endpoint,
 no dangling references, unique visit days, no Day 0), `OperationError` is raised and no
 version is created.
+
+## Findings
+
+After every operation the intent-vs-plan rules are recomputed and stored on the new version
+(`Version.findings`). Findings are warnings and never block an operation.
+
+| Type | Meaning |
+|---|---|
+| `untraced_activity` | A scheduled activity traces to no design activity or operational standard |
+| `unmet_endpoint_timepoint` | No visit within its window of the endpoint's timepoint day performs the activity the endpoint needs |
+| `missing_operational_standard` | A visit is missing a required standard activity (consent and eligibility at screening, vital signs at every on-site visit, adverse event review at every visit after randomisation) |
+
+The reference study has zero findings. `csd_core.reference.defects.DEFECT_CATALOGUE` holds 26
+seeded broken variants (8 untraced, 10 unmet timepoint, 8 missing standard), each with the
+exact finding IDs it must produce; the tests assert all of them.
 
 ## Conventions
 
