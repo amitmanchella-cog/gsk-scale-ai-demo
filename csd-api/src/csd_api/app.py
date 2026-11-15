@@ -8,15 +8,18 @@ import uuid
 from typing import Annotated, Any
 
 from csd_core.application.study_service import NotHeadError, StudyService
+from csd_core.domain.compare import Comparison
 from csd_core.domain.operations import Operation, OperationError, operation_types
 from csd_core.domain.schedule import ScheduleGrid, schedule_grid
+from csd_core.domain.scoring import Score
 from csd_core.domain.versioning import MAIN_BRANCH, Branch, Version
 from csd_core.ports.version_store import NotFoundError
 from csd_core.reference.asthma import REFERENCE_STUDY_ID, reference_study
-from fastapi import Body, Depends, FastAPI, HTTPException, Request
+from fastapi import Body, Depends, FastAPI, HTTPException, Query, Request
 from fastapi.responses import JSONResponse
 
 from csd_api.schemas import (
+    CreateBranch,
     CreateStudy,
     FindingsOut,
     Health,
@@ -128,10 +131,29 @@ def create_app(database_url: str | None = None) -> FastAPI:
         return service.get_version(version_id)
 
     @app.post("/versions/{version_id}/operations", status_code=201, responses=REJECTED)
-    def apply_operation(version_id: str, operation: Operation, service: Service) -> Version:
+    def apply_operation(
+        version_id: str,
+        operation: Operation,
+        service: Service,
+        branch: Annotated[
+            str | None,
+            Query(description="Branch to extend. Defaults to the version's own branch."),
+        ] = None,
+    ) -> Version:
         """Apply a typed operation to a branch head and return the new version."""
         with write_lock:
-            return service.apply(version_id, operation)
+            return service.apply(version_id, operation, branch=branch)
+
+    @app.post("/versions/{version_id}/branches", status_code=201, responses=REJECTED)
+    def create_branch(version_id: str, body: CreateBranch, service: Service) -> Branch:
+        """Start a branch from any version. Its head is that version until an operation
+        is posted to it with ``?branch=<name>``."""
+        with write_lock:
+            return service.create_branch(version_id, body.name)
+
+    @app.get("/versions/{version_id}/score", responses=NOT_FOUND)
+    def get_score(version_id: str, service: Service) -> Score:
+        return service.score(version_id)
 
     @app.get("/versions/{version_id}/findings", responses=NOT_FOUND)
     def get_findings(version_id: str, service: Service) -> FindingsOut:
@@ -143,5 +165,16 @@ def create_app(database_url: str | None = None) -> FastAPI:
     @app.get("/versions/{version_id}/schedule", responses=NOT_FOUND)
     def get_schedule(version_id: str, service: Service) -> ScheduleGrid:
         return schedule_grid(service.get_version(version_id).graph)
+
+    # --- compare ------------------------------------------------------------------
+
+    @app.get("/compare", responses={**NOT_FOUND, 422: {"model": Problem}})
+    def compare(
+        service: Service,
+        left: Annotated[str, Query(description="Version ID shown on the left")],
+        right: Annotated[str, Query(description="Version ID shown on the right")],
+    ) -> Comparison:
+        """Two versions side by side: scores, findings, delta (right minus left) and changes."""
+        return service.compare(left, right)
 
     return app
