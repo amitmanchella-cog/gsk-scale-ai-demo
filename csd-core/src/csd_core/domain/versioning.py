@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 
+from csd_core.domain.findings import Finding
 from csd_core.domain.models import Model, StudyGraph
 from csd_core.domain.operations import Operation
 
@@ -21,6 +22,7 @@ class Version(Model):
     seq: int
     operation: Operation | None
     graph: StudyGraph
+    findings: tuple[Finding, ...] = ()
 
 
 class Branch(Model):

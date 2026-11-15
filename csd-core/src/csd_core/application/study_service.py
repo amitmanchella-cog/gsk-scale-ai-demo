@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from csd_core.domain.findings import compute_findings
 from csd_core.domain.models import StudyGraph
 from csd_core.domain.operations import Operation, OperationError, apply_operation
 from csd_core.domain.validity import check_validity
@@ -38,8 +39,9 @@ class StudyService:
     def apply(self, version_id_: str, operation: Operation) -> Version:
         """Apply ``operation`` to a branch head and return the new version.
 
-        The parent version is left unchanged. Raises ``OperationError`` when the
-        operation is not applicable or would make the graph structurally invalid.
+        The parent version is left unchanged. Findings are recomputed for the new
+        version. Raises ``OperationError`` when the operation is not applicable or
+        would make the graph structurally invalid.
         """
         parent = self._store.get_version(version_id_)
         branch = self._store.get_branch(parent.study_id, parent.branch)
@@ -115,4 +117,5 @@ class StudyService:
             seq=seq,
             operation=operation,
             graph=graph,
+            findings=compute_findings(graph),
         )
