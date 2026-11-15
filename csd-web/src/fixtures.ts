@@ -1,5 +1,5 @@
 // A small synthetic graph for unit tests (the e2e tests use the real API).
-import type { Finding, ScheduleGrid, StudyGraph, Version, VersionSummary } from './api/types'
+import type { Comparison, Finding, ScheduleGrid, StudyGraph, Version, VersionSummary } from './api/types'
 
 export const graph: StudyGraph = {
   title: 'Synthetic asthma study',
@@ -88,4 +88,26 @@ export const version = (id: 'v-0' | 'v-1'): Version => {
     graph,
     findings: id === 'v-1' ? [finding] : [],
   }
+}
+
+export const comparison: Comparison = {
+  left: {
+    version_id: 'v-0',
+    branch: 'main',
+    seq: 0,
+    score: { visit_count: 7, patient_time_minutes: 640, cost_proxy: 2160 },
+    findings: [],
+  },
+  right: {
+    version_id: 'v-b',
+    branch: 'fewer-visits',
+    seq: 1,
+    score: { visit_count: 6, patient_time_minutes: 550, cost_proxy: 1940 },
+    findings: [finding],
+  },
+  delta: { visit_count: -1, patient_time_minutes: -90, cost_proxy: -220 },
+  changes: [
+    { element_id: 'V-W4', element_type: 'visit', change: 'removed', label: 'Week 4' },
+    { element_id: 'EP-ACQ5', element_type: 'endpoint', change: 'changed', label: 'ACQ-5' },
+  ],
 }

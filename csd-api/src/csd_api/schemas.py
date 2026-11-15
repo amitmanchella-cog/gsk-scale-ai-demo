@@ -28,6 +28,12 @@ class CreateStudy(BaseModel):
     template: str = Field(default="asthma-reference", pattern="^asthma-reference$")
 
 
+class CreateBranch(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    name: str = Field(description="Lower-case letters, digits and dashes.")
+
+
 class StudySummary(BaseModel):
     id: str
     title: str

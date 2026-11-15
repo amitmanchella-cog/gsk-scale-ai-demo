@@ -1,6 +1,6 @@
 import { graph, summaries } from '../fixtures'
 import { buildGraph } from './graphLayout'
-import { OPERATION_TEMPLATES, describeOperation, lineage } from './operations'
+import { OPERATION_TEMPLATES, describeOperation, lineage, rememberNames } from './operations'
 
 describe('describeOperation', () => {
   it('labels the root version', () => {
@@ -64,5 +64,17 @@ describe('buildGraph', () => {
       expect.arrayContaining(['OBJ-PRIM>EP-FEV1', 'EP-FEV1>DA-SPIRO', 'DA-SPIRO>A-SPIRO', 'A-SPIRO>V-W12']),
     )
     expect(edges.find((e) => e.id === 'A-SPIRO>V-W12')?.elementId).toBe('V-W12:A-SPIRO')
+  })
+})
+
+describe('names of removed elements', () => {
+  it('labels an operation on an element the current graph no longer has', () => {
+    const names = new Map<string, string>()
+    rememberNames(names, graph)
+    const without = { ...graph, plan: { ...graph.plan, visits: [] } }
+    const removal = { type: 'RemoveVisit', visit_id: 'V-W12' }
+    expect(describeOperation(removal, without)).toBe('Remove visit V-W12')
+    expect(describeOperation(removal, without, names)).toBe('Remove visit Week 12')
+    expect(describeOperation(removal, undefined, names)).toBe('Remove visit Week 12')
   })
 })

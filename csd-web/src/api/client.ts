@@ -1,7 +1,9 @@
 import type {
   Branch,
+  Comparison,
   Operation,
   ScheduleGrid,
+  Score,
   StudySummary,
   Version,
   VersionSummary,
@@ -43,11 +45,23 @@ export const api = {
   version: (versionId: string) => request<Version>(`/versions/${versionId}`),
   schedule: (versionId: string) => request<ScheduleGrid>(`/versions/${versionId}/schedule`),
   operationTypes: () => request<string[]>('/operation-types'),
-  applyOperation: (versionId: string, operation: Operation) =>
-    request<Version>(`/versions/${versionId}/operations`, {
+  score: (versionId: string) => request<Score>(`/versions/${versionId}/score`),
+  /** ``branch`` names the branch to extend; the API defaults to the version's own branch. */
+  applyOperation: (versionId: string, operation: Operation, branch?: string) =>
+    request<Version>(
+      `/versions/${versionId}/operations` +
+        (branch ? `?branch=${encodeURIComponent(branch)}` : ''),
+      { method: 'POST', body: JSON.stringify(operation) },
+    ),
+  createBranch: (versionId: string, name: string) =>
+    request<Branch>(`/versions/${versionId}/branches`, {
       method: 'POST',
-      body: JSON.stringify(operation),
+      body: JSON.stringify({ name }),
     }),
+  compare: (left: string, right: string) =>
+    request<Comparison>(
+      `/compare?left=${encodeURIComponent(left)}&right=${encodeURIComponent(right)}`,
+    ),
 }
 
 export type Api = typeof api

@@ -1,17 +1,21 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
+import { BranchPanel } from './components/BranchPanel'
+import { ComparePanel } from './components/ComparePanel'
 import { EndpointsPanel } from './components/EndpointsPanel'
 import { FindingsPanel } from './components/FindingsPanel'
 import { GraphView } from './components/GraphView'
 import { OperationForm } from './components/OperationForm'
 import { ScheduleGrid } from './components/ScheduleGrid'
+import { ScoreBar } from './components/ScoreBar'
 import { VersionTimeline } from './components/VersionTimeline'
-import { lineage } from './lib/operations'
+import { lineage, rememberNames } from './lib/operations'
 import { useStudy } from './useStudy'
 
-type Tab = 'schedule' | 'graph'
+type Tab = 'schedule' | 'graph' | 'compare'
 const TABS: { id: Tab; label: string }[] = [
   { id: 'schedule', label: 'Schedule of activities' },
   { id: 'graph', label: 'Graph' },
+  { id: 'compare', label: 'Compare branches' },
 ]
 
 const NONE: ReadonlySet<string> = new Set()
@@ -27,9 +31,13 @@ export function App() {
   const [highlight, setHighlight] = useState<ReadonlySet<string>>(NONE)
   const { version, grid, branches, versions } = study
 
-  const branch = branches.find((candidate) => candidate.name === 'main')
+  const branch = branches.find((candidate) => candidate.name === study.branchName)
   const headId = branch?.head_version_id ?? ''
   const timeline = useMemo(() => lineage(versions, headId), [versions, headId])
+  // A removed visit is not in the graph of the version that removed it: keep the names
+  // of every element seen so the timeline can still say "Remove visit Week 4".
+  const names = useRef(new Map<string, string>()).current
+  if (version) rememberNames(names, version.graph)
   const editable = version !== null && version.id === headId && !study.busy
 
   return (
@@ -45,6 +53,10 @@ export function App() {
           <div>
             <dt>Study</dt>
             <dd data-testid="study-id">{studyId}</dd>
+          </div>
+          <div>
+            <dt>Branch</dt>
+            <dd data-testid="current-branch">{study.branchName}</dd>
           </div>
           <div>
             <dt>Version</dt>
@@ -70,11 +82,23 @@ export function App() {
 
       <div className="layout">
         <aside className="sidebar">
+          <BranchPanel
+            branches={branches}
+            current={study.branchName}
+            canCreate={version !== null && !study.busy}
+            versionLabel={version ? `v${version.seq}` : ''}
+            onSelect={(name) => {
+              setHighlight(NONE)
+              study.selectBranch(name)
+            }}
+            onCreate={study.createBranch}
+          />
           <VersionTimeline
             versions={timeline}
             selectedId={version?.id ?? ''}
             headId={headId}
             graph={version?.graph}
+            names={names}
             onSelect={(versionId) => {
               setHighlight(NONE)
               study.select(versionId)
@@ -83,6 +107,7 @@ export function App() {
         </aside>
 
         <main className="main">
+          {study.score && <ScoreBar score={study.score} />}
           <nav className="tabs" role="tablist" aria-label="Views">
             {TABS.map(({ id, label }) => (
               <button
@@ -117,6 +142,9 @@ export function App() {
               highlight={highlight}
               onSelect={(id) => setHighlight(new Set([id]))}
             />
+          )}
+          {tab === 'compare' && (
+            <ComparePanel branches={branches} initialRight={study.branchName} />
           )}
         </main>
 
