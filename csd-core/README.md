@@ -101,10 +101,10 @@ v2.findings  # () Week 14 is Day 99
 ## Branches, scores and compare
 
 ```python
-service.create_branch(root.id, "fewer-visits")            # from any version, head or not
+service.create_branch(root.id, "fewer-visits")  # from any version, head or not
 fewer = service.apply(root.id, RemoveVisit(visit_id="V-W4"), branch="fewer-visits")
-service.score(fewer.id)        # visit_count=6, patient_time_minutes=550, cost_proxy=1940
-service.compare(root.id, fewer.id)   # both scores, both findings, delta, element changes
+service.score(fewer.id)  # visit_count=6, patient_time_minutes=550, cost_proxy=1940
+service.compare(root.id, fewer.id)  # both scores, both findings, delta, element changes
 ```
 
 - A branch starts with its base version as its head and creates no version. The first
