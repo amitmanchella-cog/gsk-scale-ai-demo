@@ -1,6 +1,7 @@
 import type {
   Branch,
   Comparison,
+  Draft,
   Operation,
   ScheduleGrid,
   Score,
@@ -49,8 +50,7 @@ export const api = {
   /** ``branch`` names the branch to extend; the API defaults to the version's own branch. */
   applyOperation: (versionId: string, operation: Operation, branch?: string) =>
     request<Version>(
-      `/versions/${versionId}/operations` +
-        (branch ? `?branch=${encodeURIComponent(branch)}` : ''),
+      `/versions/${versionId}/operations` + (branch ? `?branch=${encodeURIComponent(branch)}` : ''),
       { method: 'POST', body: JSON.stringify(operation) },
     ),
   createBranch: (versionId: string, name: string) =>
@@ -58,6 +58,7 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ name }),
     }),
+  drafts: (versionId: string) => request<Draft>(`/versions/${versionId}/drafts`),
   compare: (left: string, right: string) =>
     request<Comparison>(
       `/compare?left=${encodeURIComponent(left)}&right=${encodeURIComponent(right)}`,

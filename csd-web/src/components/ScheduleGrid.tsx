@@ -61,6 +61,7 @@ export function ScheduleGrid({ grid, editable, highlight, onOperation }: Props) 
                 scope="col"
                 data-testid={`visit-header-${visit.id}`}
                 className={highlight.has(visit.id) ? 'highlighted' : undefined}
+                data-highlighted={highlight.has(visit.id)}
               >
                 <span className="visit-name">{visit.name}</span>
                 <DayInput
@@ -91,19 +92,20 @@ export function ScheduleGrid({ grid, editable, highlight, onOperation }: Props) 
               key={row.activity_id}
               data-testid={`activity-row-${row.activity_id}`}
               className={highlight.has(row.activity_id) ? 'highlighted' : undefined}
+              data-highlighted={highlight.has(row.activity_id)}
             >
               <th scope="row">{row.activity_name}</th>
               {row.cells.map((scheduled, index) => {
                 const visit = grid.visits[index]!
                 const cellId = `${visit.id}:${row.activity_id}`
+                const lit = highlight.has(cellId) || highlight.has(visit.id)
                 return (
                   <td
                     key={visit.id}
                     data-testid={`cell-${row.activity_id}-${visit.id}`}
                     data-scheduled={scheduled}
-                    className={
-                      highlight.has(cellId) || highlight.has(visit.id) ? 'highlighted' : undefined
-                    }
+                    data-highlighted={lit}
+                    className={lit ? 'highlighted' : undefined}
                   >
                     <button
                       type="button"

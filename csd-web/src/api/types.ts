@@ -141,3 +141,22 @@ export interface ScheduleGrid {
   visits: { id: string; name: string; day: number; window: number; on_site: boolean }[]
   rows: { activity_id: string; activity_name: string; cells: boolean[] }[]
 }
+
+export type SectionNumber = '3' | '5' | '8'
+
+export interface Sentence {
+  text: string
+  /** IDs of the graph elements the sentence was written from. */
+  element_ids: string[]
+}
+
+export interface DraftSection {
+  number: SectionNumber
+  title: string
+  sentences: Sentence[]
+}
+
+export interface Draft {
+  provider: string
+  sections: DraftSection[]
+}

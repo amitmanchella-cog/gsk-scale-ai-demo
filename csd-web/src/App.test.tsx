@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { App, studyIdFromLocation } from './App'
-import { comparison, grid, summaries, version } from './fixtures'
+import { comparison, draft, grid, summaries, version } from './fixtures'
 
 // React Flow needs a real layout engine; the graph view is covered by the Playwright suite.
 vi.mock('./components/GraphView', () => ({
@@ -32,6 +32,7 @@ function fakeApi() {
       return respond(200, branches.map((branch) => ({ ...branch, head_version_id: head })))
     if (path.endsWith('/score'))
       return respond(200, { visit_count: 7, patient_time_minutes: 640, cost_proxy: 2160 })
+    if (path.endsWith('/drafts')) return respond(200, draft)
     if (path.startsWith('/compare')) return respond(200, comparison)
     if (path.endsWith('/schedule')) return respond(200, grid)
     if (path.includes('/operations')) {
@@ -142,5 +143,30 @@ describe('App', () => {
     vi.stubGlobal('fetch', () => Promise.resolve(new Response('{"detail":"study not found"}', { status: 404 })))
     render(<App />)
     expect(await screen.findByRole('alert')).toHaveTextContent('Could not load study asthma-ref: study not found')
+  })
+
+  it('drafts M11 section 8 and highlights the elements of the sentence that is clicked', async () => {
+    const calls = fakeApi()
+    render(<App />)
+    await userEvent.click(await screen.findByTestId('tab-drafts'))
+
+    expect(await screen.findByTestId('draft-title')).toHaveTextContent(
+      '8 Trial Assessments and Procedures',
+    )
+    expect(calls.some((call) => call.path === '/versions/v-0/drafts')).toBe(true)
+    expect(screen.getByTestId('cell-A-SPIRO-V-W12')).toHaveAttribute('data-highlighted', 'false')
+
+    await userEvent.click(screen.getByRole('button', { name: /^Vital signs is performed/ }))
+    expect(screen.getByTestId('cell-A-VITALS-V-RAND')).toHaveAttribute('data-highlighted', 'true')
+    expect(screen.getByTestId('activity-row-A-VITALS')).toHaveAttribute('data-highlighted', 'true')
+    expect(screen.getByTestId('cell-A-SPIRO-V-W12')).toHaveAttribute('data-highlighted', 'false')
+
+    expect(screen.getByTestId('graph-view')).toHaveTextContent('A-VITALS,V-RAND:A-VITALS')
+
+    // Only section 8 is shown with the schedule grid; every section has the graph.
+    await userEvent.click(screen.getByTestId('draft-section-5'))
+    await userEvent.click(screen.getByRole('button', { name: /^This is a Phase 3 study/ }))
+    expect(screen.getByTestId('graph-view')).toHaveTextContent('ARM-DRUG,ARM-PBO')
+    expect(screen.queryByTestId('soa-grid')).not.toBeInTheDocument()
   })
 })

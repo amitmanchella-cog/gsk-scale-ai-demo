@@ -1,5 +1,5 @@
 // A small synthetic graph for unit tests (the e2e tests use the real API).
-import type { Comparison, Finding, ScheduleGrid, StudyGraph, Version, VersionSummary } from './api/types'
+import type { Comparison, Draft, Finding, ScheduleGrid, StudyGraph, Version, VersionSummary } from './api/types'
 
 export const graph: StudyGraph = {
   title: 'Synthetic asthma study',
@@ -109,5 +109,45 @@ export const comparison: Comparison = {
   changes: [
     { element_id: 'V-W4', element_type: 'visit', change: 'removed', label: 'Week 4' },
     { element_id: 'EP-ACQ5', element_type: 'endpoint', change: 'changed', label: 'ACQ-5' },
+  ],
+}
+
+export const draft: Draft = {
+  provider: 'template',
+  sections: [
+    {
+      number: '3',
+      title: 'Trial Objectives and Associated Estimands',
+      sentences: [
+        {
+          text: 'The primary objective is lung function.',
+          element_ids: ['OBJ-PRIM'],
+        },
+      ],
+    },
+    {
+      number: '5',
+      title: 'Trial Design',
+      sentences: [
+        {
+          text: 'This is a Phase 3 study with 2 arms.',
+          element_ids: ['ARM-DRUG', 'ARM-PBO'],
+        },
+      ],
+    },
+    {
+      number: '8',
+      title: 'Trial Assessments and Procedures',
+      sentences: [
+        {
+          text: 'Week 12 takes place on site on Day 85 and includes spirometry.',
+          element_ids: ['V-W12', 'V-W12:A-SPIRO'],
+        },
+        {
+          text: 'Vital signs is performed at 1 visit: Randomisation.',
+          element_ids: ['A-VITALS', 'V-RAND:A-VITALS'],
+        },
+      ],
+    },
   ],
 }
