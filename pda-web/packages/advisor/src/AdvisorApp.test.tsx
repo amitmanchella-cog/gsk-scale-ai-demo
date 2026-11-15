@@ -112,6 +112,29 @@ describe('AdvisorApp', () => {
     expect(screen.queryByTestId('what-if-result')).not.toBeInTheDocument();
   });
 
+  it('offers the report as HTML and PDF with the ticked changes as accepted changes', async () => {
+    stubApi(reviewRoutes);
+    render(<AdvisorApp protocolId="p-1" onProtocolChange={() => {}} />);
+
+    const picks = await screen.findAllByTestId('suggestion-pick');
+    expect(screen.getByTestId('export-html')).toHaveAttribute('href', '/api/protocols/p-1/report?format=html');
+    expect(screen.getByTestId('export-summary')).toHaveTextContent('covers the draft as uploaded');
+
+    await userEvent.click(picks[0]!);
+    expect(screen.getByTestId('export-summary')).toHaveTextContent('includes 1 accepted change:');
+    await userEvent.click(picks[1]!);
+    expect(screen.getByTestId('export-summary')).toHaveTextContent('includes 2 accepted changes:');
+    expect(screen.getByTestId('export-html')).toHaveAttribute(
+      'href',
+      '/api/protocols/p-1/report?format=html&accept=S5&accept=S3',
+    );
+    expect(screen.getByTestId('export-pdf')).toHaveAttribute(
+      'href',
+      '/api/protocols/p-1/report?format=pdf&accept=S5&accept=S3',
+    );
+    expect(screen.getByTestId('export-pdf')).toHaveAttribute('download');
+  });
+
   it('reports a failed what-if and an empty suggestion list', async () => {
     stubApi({
       ...reviewRoutes,
