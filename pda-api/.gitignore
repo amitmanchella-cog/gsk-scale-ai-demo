@@ -1,0 +1,11 @@
+.venv/
+*.egg-info/
+__pycache__/
+.coverage
+coverage.xml
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+sbom.json
+*.db
+build/
