@@ -17,8 +17,8 @@ All data is synthetic. No person-level data is stored.
 ```
 src/csd_core/
   domain/        models, operations, structural validity, findings, versions   (no I/O)
-  ports/         VersionStore protocol
-  adapters/      InMemoryVersionStore
+  ports/         VersionStore, DraftProvider and ProtoIQ protocols
+  adapters/      InMemoryVersionStore, TemplateDraftProvider, StubProtoIQ
   application/   StudyService: create_study, apply, history, replay
   reference/     the synthetic Phase 3 asthma reference study and the seeded defect catalogue
 ```
@@ -113,3 +113,25 @@ service.compare(root.id, fewer.id)  # both scores, both findings, delta, element
   where a visit lasts as long as the activities scheduled at it; cost proxy, the sum of
   the unit costs of every scheduled activity, per participant.
 - The reference study scores 7 visits, 640 minutes and 2160.
+
+## M11 drafts with traceability
+
+`service.draft(version_id)` drafts ICH M11 sections 3 (objectives and estimands), 5 (trial
+design) and 8 (assessments and procedures) from a version's graph. Every sentence carries
+the IDs of the graph elements it was written from.
+
+```python
+draft = service.draft(root.id, ("8",))
+sentence = draft.sections[0].sentences[2]
+sentence.text  # "Week 4 takes place on site on Day 29 (window of 3 days either side) and ..."
+sentence.element_ids  # ("V-W4", "V-W4:A-SPIRO", "V-W4:A-ACQ5", ...)
+```
+
+- `ports/drafter.py` is the provider interface, `DraftProvider`.
+- `adapters/template_drafter.py` is the only provider shipped. It is deterministic and
+  makes no model or network call.
+- The service refuses a draft (`UntracedDraftError`) when any sentence has no element ID or
+  an ID that is not in that version, so a future model-backed provider cannot return
+  untraceable text.
+- `ports/protoiq.py` is the port for ProtoIQ, a future external agentic system that
+  proposes typed operations. `adapters/protoiq_stub.py` is a stub that proposes nothing.

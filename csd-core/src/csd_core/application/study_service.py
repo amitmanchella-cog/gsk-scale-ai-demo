@@ -4,13 +4,16 @@ from __future__ import annotations
 
 import re
 
+from csd_core.adapters.template_drafter import TemplateDraftProvider
 from csd_core.domain.compare import Comparison, compare_versions
+from csd_core.domain.drafting import SECTION_NUMBERS, Draft, SectionNumber, untraced_sentences
 from csd_core.domain.findings import compute_findings
 from csd_core.domain.models import StudyGraph
 from csd_core.domain.operations import Operation, OperationError, apply_operation
 from csd_core.domain.scoring import Score, score
 from csd_core.domain.validity import check_validity
 from csd_core.domain.versioning import MAIN_BRANCH, Branch, Version, version_id
+from csd_core.ports.drafter import DraftProvider
 from csd_core.ports.version_store import NotFoundError, VersionStore
 
 
@@ -18,12 +21,17 @@ class NotHeadError(OperationError):
     """Operations can only be applied to the head version of a branch."""
 
 
+class UntracedDraftError(RuntimeError):
+    """A draft provider returned a sentence that does not trace to the version's graph."""
+
+
 BRANCH_NAME = re.compile(r"^[a-z0-9][a-z0-9-]{0,62}$")
 
 
 class StudyService:
-    def __init__(self, store: VersionStore) -> None:
+    def __init__(self, store: VersionStore, drafter: DraftProvider | None = None) -> None:
         self._store = store
+        self._drafter: DraftProvider = drafter or TemplateDraftProvider()
 
     # --- commands -----------------------------------------------------------------
 
@@ -159,3 +167,22 @@ class StudyService:
             graph=graph,
             findings=compute_findings(graph),
         )
+
+    def draft(
+        self, version_id_: str, sections: tuple[SectionNumber, ...] = SECTION_NUMBERS
+    ) -> Draft:
+        """Draft M11 sections from a version's graph.
+
+        Whatever the provider, a sentence that does not trace to an element of this
+        version is refused rather than returned.
+        """
+        graph = self._store.get_version(version_id_).graph
+        drafted = tuple(self._drafter.draft_section(graph, number) for number in sections)
+        for section in drafted:
+            untraced = untraced_sentences(graph, section)
+            if untraced:
+                raise UntracedDraftError(
+                    f"section {section.number} has a sentence that does not trace to the "
+                    f"graph: {untraced[0]!r}"
+                )
+        return Draft(provider=self._drafter.name, sections=drafted)
