@@ -37,6 +37,8 @@ synthetic reference study is seeded as study `asthma-ref`.
 | `POST /versions/{version_id}/branches` | Start a branch `{"name": ...}` from any version, head or not (201). No version is created |
 | `GET /versions/{version_id}/score` | Visit count, total patient time in minutes and cost proxy |
 | `GET /compare?left=<id>&right=<id>` | Two versions side by side: scores, findings, delta (right minus left) and element changes |
+| `GET /versions/{id}/drafts` | ICH M11 sections 3, 5 and 8 drafted from the graph; every sentence lists its graph element IDs |
+| `GET /versions/{id}/drafts/{section}` | One drafted section: `3`, `5` or `8` |
 | `GET /versions/{version_id}/findings` | Findings of a version |
 | `GET /versions/{version_id}/schedule` | Schedule-of-activities grid |
 

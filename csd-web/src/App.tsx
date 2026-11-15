@@ -1,6 +1,8 @@
 import { useMemo, useRef, useState } from 'react'
 import { BranchPanel } from './components/BranchPanel'
+import type { SectionNumber } from './api/types'
 import { ComparePanel } from './components/ComparePanel'
+import { DraftPanel } from './components/DraftPanel'
 import { EndpointsPanel } from './components/EndpointsPanel'
 import { FindingsPanel } from './components/FindingsPanel'
 import { GraphView } from './components/GraphView'
@@ -11,11 +13,12 @@ import { VersionTimeline } from './components/VersionTimeline'
 import { lineage, rememberNames } from './lib/operations'
 import { useStudy } from './useStudy'
 
-type Tab = 'schedule' | 'graph' | 'compare'
+type Tab = 'schedule' | 'graph' | 'compare' | 'drafts'
 const TABS: { id: Tab; label: string }[] = [
   { id: 'schedule', label: 'Schedule of activities' },
   { id: 'graph', label: 'Graph' },
   { id: 'compare', label: 'Compare branches' },
+  { id: 'drafts', label: 'M11 drafts' },
 ]
 
 const NONE: ReadonlySet<string> = new Set()
@@ -29,6 +32,7 @@ export function App() {
   const study = useStudy(studyId)
   const [tab, setTab] = useState<Tab>('schedule')
   const [highlight, setHighlight] = useState<ReadonlySet<string>>(NONE)
+  const [section, setSection] = useState<SectionNumber>('8')
   const { version, grid, branches, versions } = study
 
   const branch = branches.find((candidate) => candidate.name === study.branchName)
@@ -142,6 +146,34 @@ export function App() {
               highlight={highlight}
               onSelect={(id) => setHighlight(new Set([id]))}
             />
+          )}
+          {version && grid && tab === 'drafts' && (
+            <div className="draft-layout">
+              <DraftPanel
+                versionId={version.id}
+                section={section}
+                highlight={highlight}
+                onSection={(next) => {
+                  setHighlight(NONE)
+                  setSection(next)
+                }}
+                onHighlight={(ids) => setHighlight(new Set(ids))}
+              />
+              {/* Section 8 is the schedule, so it also gets the grid; the graph shows every section. */}
+              {section === '8' && (
+                <ScheduleGrid
+                  grid={grid}
+                  editable={editable}
+                  highlight={highlight}
+                  onOperation={study.apply}
+                />
+              )}
+              <GraphView
+                graph={version.graph}
+                highlight={highlight}
+                onSelect={(id) => setHighlight(new Set([id]))}
+              />
+            </div>
           )}
           {tab === 'compare' && (
             <ComparePanel branches={branches} initialRight={study.branchName} />

@@ -63,6 +63,16 @@ Set `CSD_API_URL` if the API is not on `http://localhost:8000`.
 4. Open **Compare branches** and pick the two branches: the scores render side by side
    with the difference, each side's findings, and the graph elements that differ.
 
+## M11 drafts, by hand
+
+1. Open **M11 drafts**. Section 8 (Trial Assessments and Procedures) opens first, with the
+   schedule grid and the graph below it. Sections 3 and 5 are one click away.
+2. Click a sentence, for example *Week 4 takes place on site on Day 29…*. The Week 4 column of
+   the grid and the Week 4 node of the plan graph light up. The chips under a sentence are the
+   IDs of the graph elements it was written from; a chip highlights that one element.
+3. The draft is written from the version on screen: move a visit or pick an older version in
+   the timeline and the text follows. The drafter is the offline template provider in csd-core.
+
 ## Checks
 
 ```bash
