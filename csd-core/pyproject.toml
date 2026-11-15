@@ -1,0 +1,74 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "csd-core"
+version = "0.1.0"
+description = "Computable study design core: linked intent and plan graphs, typed operations, immutable versions."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2.7,<3"]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-cov>=5",
+    "hypothesis>=6.100",
+    "ruff>=0.6",
+    "mypy>=1.10",
+    "import-linter>=2.0",
+    "pip-audit>=2.7",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+csd_core = ["py.typed"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "B", "UP"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["csd_core"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+plugins = ["pydantic.mypy"]
+files = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --cov=csd_core --cov-report=term-missing --cov-fail-under=90"
+
+[tool.importlinter]
+root_package = "csd_core"
+include_external_packages = true
+
+[[tool.importlinter.contracts]]
+name = "The core imports no storage, web or agent framework"
+type = "forbidden"
+source_modules = ["csd_core"]
+forbidden_modules = [
+    "sqlalchemy", "sqlite3", "psycopg", "psycopg2", "asyncpg", "pymongo", "redis",
+    "fastapi", "starlette", "flask", "django", "uvicorn", "aiohttp", "httpx", "requests",
+    "openai", "anthropic", "langchain", "langgraph", "llama_index", "crewai", "autogen",
+]
+
+[[tool.importlinter.contracts]]
+name = "Ports and adapters layering"
+type = "layers"
+layers = [
+    "csd_core.reference",
+    "csd_core.application",
+    "csd_core.adapters",
+    "csd_core.ports",
+    "csd_core.domain",
+]
