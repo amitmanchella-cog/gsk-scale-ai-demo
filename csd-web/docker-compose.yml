@@ -1,0 +1,27 @@
+# Starts the API and the UI together: docker compose up --build
+# UI: http://localhost:8080   API docs: http://localhost:8000/docs
+services:
+  api:
+    build:
+      context: ..
+      dockerfile: csd-api/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - csd-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build: .
+    ports:
+      - "8080:80"
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  csd-data:

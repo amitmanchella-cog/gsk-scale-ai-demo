@@ -1,0 +1,87 @@
+name: csd-web
+
+on:
+  pull_request:
+    paths:
+      - "csd-web/**"
+      - "csd-api/**"
+      - "csd-core/**"
+      - ".github/workflows/csd-web.yml"
+  push:
+    branches: [main]
+    paths:
+      - "csd-web/**"
+      - "csd-api/**"
+      - "csd-core/**"
+      - ".github/workflows/csd-web.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: csd-web-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: csd-web (eslint, tsc, vitest, npm audit)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: csd-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: csd-web/package-lock.json
+      - run: npm ci
+      - name: Lint (eslint)
+        run: npm run lint
+      - name: Types (tsc)
+        run: npm run typecheck
+      - name: Unit tests with coverage (vitest)
+        run: npm test
+      - name: Dependency audit (npm audit)
+        run: npm run audit
+      - name: Build
+        run: npm run build
+
+  e2e:
+    name: csd-web (Playwright on chromium, firefox, webkit, webkit-ipad)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: csd-web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install the real API (csd-core and csd-api from this repository)
+        run: pip install ../csd-core ../csd-api
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: csd-web/package-lock.json
+      - run: npm ci
+      - name: Install browsers
+        run: npx playwright install --with-deps
+      - name: End-to-end tests against the real API
+        run: npm run e2e
+      - name: Upload the HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: csd-web-playwright-report
+          path: csd-web/playwright-report
+          retention-days: 30
+      - name: Upload videos, traces and screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: csd-web-playwright-test-results
+          path: csd-web/test-results
+          retention-days: 30
