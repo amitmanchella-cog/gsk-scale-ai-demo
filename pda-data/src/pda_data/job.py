@@ -2,7 +2,7 @@
 
     python -m pda_data.job --raw data/raw --out output
 
-writes ``output/v<DATASET_VERSION>/{trial_features,recruiting_trials}`` and a
+writes ``output/v<DATASET_VERSION>/{trial_features,recruiting_trials,accrual_benchmarks,country_accrual}`` and a
 ``_MANIFEST.json`` with row counts.
 """
 
@@ -16,7 +16,12 @@ from pyspark.sql import DataFrame, SparkSession
 
 from pda_data import DATASET_VERSION
 from pda_data.schema import PERSON_LEVEL_TOKENS, RAW_SCHEMA
-from pda_data.transform import build_recruiting_trials, build_trial_features
+from pda_data.transform import (
+    build_accrual_benchmarks,
+    build_country_accrual,
+    build_recruiting_trials,
+    build_trial_features,
+)
 
 
 def get_spark(app_name: str = "pda-data") -> SparkSession:
@@ -58,6 +63,12 @@ def run(spark: SparkSession, raw_dir: Path, out_dir: Path) -> dict[str, object]:
         "tables": {
             "trial_features": {"rows": write_parquet(benchmark, version_dir / "trial_features")},
             "recruiting_trials": {"rows": write_parquet(recruiting, version_dir / "recruiting_trials")},
+            "accrual_benchmarks": {
+                "rows": write_parquet(build_accrual_benchmarks(benchmark), version_dir / "accrual_benchmarks")
+            },
+            "country_accrual": {
+                "rows": write_parquet(build_country_accrual(benchmark), version_dir / "country_accrual")
+            },
         },
     }
     source_manifest = raw_dir / "MANIFEST.json"
