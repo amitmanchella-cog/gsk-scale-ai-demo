@@ -1,4 +1,5 @@
 import type { StudyGraph, VersionSummary } from '../api/types'
+import type { Names } from '../lib/operations'
 import { describeOperation } from '../lib/operations'
 
 interface Props {
@@ -6,10 +7,12 @@ interface Props {
   selectedId: string
   headId: string
   graph?: StudyGraph
+  /** Names of elements seen in other versions, for operations on elements now gone. */
+  names?: Names
   onSelect: (versionId: string) => void
 }
 
-export function VersionTimeline({ versions, selectedId, headId, graph, onSelect }: Props) {
+export function VersionTimeline({ versions, selectedId, headId, graph, names, onSelect }: Props) {
   return (
     <section className="panel timeline-panel" aria-label="Version timeline">
       <h2>
@@ -32,7 +35,7 @@ export function VersionTimeline({ versions, selectedId, headId, graph, onSelect 
                 v{version.seq}
                 {version.id === headId ? ' · head' : ''}
               </span>
-              <span className="label">{describeOperation(version.operation, graph)}</span>
+              <span className="label">{describeOperation(version.operation, graph, names)}</span>
               <span className={version.finding_count ? 'badge warning' : 'badge ok'}>
                 {version.finding_count} {version.finding_count === 1 ? 'finding' : 'findings'}
               </span>

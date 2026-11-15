@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { App, studyIdFromLocation } from './App'
-import { grid, summaries, version } from './fixtures'
+import { comparison, grid, summaries, version } from './fixtures'
 
 // React Flow needs a real layout engine; the graph view is covered by the Playwright suite.
 vi.mock('./components/GraphView', () => ({
@@ -13,6 +13,7 @@ vi.mock('./components/GraphView', () => ({
 /** A tiny in-memory stand-in for csd-api, at the fetch boundary. */
 function fakeApi() {
   let head = 'v-0'
+  const branches = [{ study_id: 's', name: 'main', base_version_id: null as string | null }]
   const calls: { path: string; body?: unknown }[] = []
   const respond = (status: number, body: unknown) =>
     Promise.resolve(new Response(JSON.stringify(body), { status }))
@@ -22,10 +23,18 @@ function fakeApi() {
     calls.push({ path, body })
     if (path === '/operation-types') return respond(200, ['MoveVisit', 'ChangeEndpointTiming'])
     if (path.endsWith('/versions')) return respond(200, head === 'v-0' ? summaries.slice(0, 1) : summaries)
+    if (path.endsWith('/branches') && body) {
+      if (body.name === 'taken') return respond(422, { detail: "branch 'taken' already exists" })
+      branches.push({ study_id: 's', name: body.name, base_version_id: 'v-0' })
+      return respond(201, { ...branches.at(-1), head_version_id: 'v-0' })
+    }
     if (path.endsWith('/branches'))
-      return respond(200, [{ study_id: 's', name: 'main', base_version_id: null, head_version_id: head }])
+      return respond(200, branches.map((branch) => ({ ...branch, head_version_id: head })))
+    if (path.endsWith('/score'))
+      return respond(200, { visit_count: 7, patient_time_minutes: 640, cost_proxy: 2160 })
+    if (path.startsWith('/compare')) return respond(200, comparison)
     if (path.endsWith('/schedule')) return respond(200, grid)
-    if (path.endsWith('/operations')) {
+    if (path.includes('/operations')) {
       if (body.day === 1) return respond(422, { detail: 'two visits on Day 1' })
       head = 'v-1'
       return respond(201, version('v-1'))
@@ -59,7 +68,7 @@ describe('App', () => {
 
     await waitFor(() => expect(screen.getByTestId('current-version')).toHaveTextContent('v1 (v-1)'))
     expect(calls).toContainEqual({
-      path: '/versions/v-0/operations',
+      path: '/versions/v-0/operations?branch=main',
       body: { type: 'MoveVisit', visit_id: 'V-W12', day: 99 },
     })
     expect(screen.getAllByTestId('timeline-version')).toHaveLength(2)
@@ -86,6 +95,47 @@ describe('App', () => {
     expect(screen.getAllByTestId('timeline-version')).toHaveLength(1)
     await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
     expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+  })
+
+  it('creates a branch from the version on screen, edits it and compares it with main', async () => {
+    const calls = fakeApi()
+    render(<App />)
+    expect(await screen.findByTestId('score-visit_count')).toHaveTextContent('7')
+    expect(screen.getByTestId('score-patient_time_minutes')).toHaveTextContent('640 min')
+    expect(screen.getByTestId('current-branch')).toHaveTextContent('main')
+
+    await userEvent.type(screen.getByTestId('branch-name'), 'fewer-visits')
+    await userEvent.click(screen.getByTestId('create-branch'))
+    await waitFor(() => expect(screen.getByTestId('current-branch')).toHaveTextContent('fewer-visits'))
+    expect(calls).toContainEqual({ path: '/versions/v-0/branches', body: { name: 'fewer-visits' } })
+    expect(screen.getByTestId('branch-select')).toHaveValue('fewer-visits')
+    expect(screen.getByTestId('mode')).toHaveTextContent('Editing head')
+
+    // The first operation on the branch is posted to its base version, naming the branch.
+    await userEvent.click(screen.getByTestId('remove-visit-V-W12'))
+    await waitFor(() =>
+      expect(calls).toContainEqual({
+        path: '/versions/v-0/operations?branch=fewer-visits',
+        body: { type: 'RemoveVisit', visit_id: 'V-W12' },
+      }),
+    )
+
+    await userEvent.click(screen.getByTestId('tab-compare'))
+    expect(await screen.findByTestId('compare-table')).toBeVisible()
+    expect(screen.getByTestId('compare-left')).toHaveValue('main')
+    expect(screen.getByTestId('compare-right')).toHaveValue('fewer-visits')
+
+    await userEvent.selectOptions(screen.getByTestId('branch-select'), 'main')
+    await waitFor(() => expect(screen.getByTestId('current-branch')).toHaveTextContent('main'))
+  })
+
+  it('shows why a branch could not be created', async () => {
+    fakeApi()
+    render(<App />)
+    await userEvent.type(await screen.findByTestId('branch-name'), 'taken')
+    await userEvent.click(screen.getByTestId('create-branch'))
+    expect(await screen.findByRole('alert')).toHaveTextContent("branch 'taken' already exists")
+    expect(screen.getByTestId('current-branch')).toHaveTextContent('main')
   })
 
   it('reports a study that cannot be loaded', async () => {

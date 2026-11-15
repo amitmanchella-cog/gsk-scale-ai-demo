@@ -101,6 +101,34 @@ export interface Branch {
   head_version_id: string
 }
 
+export interface Score {
+  visit_count: number
+  patient_time_minutes: number
+  cost_proxy: number
+}
+
+export interface ComparedVersion {
+  version_id: string
+  branch: string
+  seq: number
+  score: Score
+  findings: Finding[]
+}
+
+export interface ElementChange {
+  element_id: string
+  element_type: string
+  change: 'added' | 'removed' | 'changed'
+  label: string
+}
+
+export interface Comparison {
+  left: ComparedVersion
+  right: ComparedVersion
+  delta: Score
+  changes: ElementChange[]
+}
+
 export interface StudySummary {
   id: string
   title: string

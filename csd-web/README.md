@@ -52,6 +52,17 @@ Set `CSD_API_URL` if the API is not on `http://localhost:8000`.
    `v2` and the findings panel is back to zero.
 3. Click `v0` and `v1` in the timeline: both are unchanged.
 
+## Branches and compare, by hand
+
+1. In **Branches**, type `fewer-visits` and press **Create branch**. The branch starts from
+   the version on screen (any version, head or not) and no version is created.
+2. Press **Remove** under Week 4. The score bar drops from 7 visits, 640 min, 2160 to
+   6 visits, 550 min, 1940.
+3. Switch **Viewing** back to `main`, create `acq5-primary`, and press **Make primary** on
+   the ACQ-5 endpoint.
+4. Open **Compare branches** and pick the two branches: the scores render side by side
+   with the difference, each side's findings, and the graph elements that differ.
+
 ## Checks
 
 ```bash

@@ -50,6 +50,16 @@ function EndpointRow(props: Omit<Props, 'endpoints'> & { endpoint: Endpoint }) {
         >
           Change timing
         </button>
+        {endpoint.level !== 'primary' && (
+          <button
+            type="button"
+            data-testid={`make-primary-${endpoint.id}`}
+            disabled={!editable}
+            onClick={() => onOperation({ type: 'ChangePrimaryEndpoint', endpoint_id: endpoint.id })}
+          >
+            Make primary
+          </button>
+        )}
       </form>
     </li>
   )

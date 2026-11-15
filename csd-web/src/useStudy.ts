@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api as defaultApi } from './api/client'
 import type { Api } from './api/client'
-import type { Branch, Operation, ScheduleGrid, Version, VersionSummary } from './api/types'
+import type { Branch, Operation, ScheduleGrid, Score, Version, VersionSummary } from './api/types'
 
 export interface StudyState {
   versions: VersionSummary[]
   branches: Branch[]
+  /** The branch being viewed and edited. */
+  branchName: string
+  score: Score | null
   version: Version | null
   grid: ScheduleGrid | null
   operationTypes: string[]
@@ -13,6 +16,9 @@ export interface StudyState {
   busy: boolean
   select: (versionId: string) => void
   apply: (operation: Operation) => void
+  selectBranch: (name: string) => void
+  /** Start a branch from the version on screen and switch to it. */
+  createBranch: (name: string) => void
   dismissError: () => void
 }
 
@@ -24,6 +30,8 @@ export function useStudy(studyId: string, api: Api = defaultApi): StudyState {
   const [branches, setBranches] = useState<Branch[]>([])
   const [version, setVersion] = useState<Version | null>(null)
   const [grid, setGrid] = useState<ScheduleGrid | null>(null)
+  const [score, setScore] = useState<Score | null>(null)
+  const [branchName, setBranchName] = useState('main')
   const [operationTypes, setOperationTypes] = useState<string[]>([])
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
@@ -33,13 +41,15 @@ export function useStudy(studyId: string, api: Api = defaultApi): StudyState {
   const show = useCallback(
     async (versionId: string) => {
       requested.current = versionId
-      const [nextVersion, nextGrid] = await Promise.all([
+      const [nextVersion, nextGrid, nextScore] = await Promise.all([
         api.version(versionId),
         api.schedule(versionId),
+        api.score(versionId),
       ])
       if (requested.current !== versionId) return // a newer selection won
       setVersion(nextVersion)
       setGrid(nextGrid)
+      setScore(nextScore)
     },
     [api],
   )
@@ -79,28 +89,68 @@ export function useStudy(studyId: string, api: Api = defaultApi): StudyState {
     [show],
   )
 
+  const run = useCallback((work: () => Promise<void>) => {
+    if (busyRef.current) return
+    busyRef.current = true
+    setBusy(true)
+    setError(null)
+    work()
+      .catch((caught: unknown) => setError(message(caught)))
+      .finally(() => {
+        busyRef.current = false
+        setBusy(false)
+      })
+  }, [])
+
   const apply = useCallback(
     (operation: Operation) => {
-      if (busyRef.current || !version) return
-      busyRef.current = true
-      setBusy(true)
-      setError(null)
-      ;(async () => {
-        try {
-          const created = await api.applyOperation(version.id, operation)
-          await Promise.all([refreshLists(), show(created.id)])
-        } catch (caught) {
-          setError(message(caught))
-        } finally {
-          busyRef.current = false
-          setBusy(false)
-        }
-      })()
+      if (!version) return
+      run(async () => {
+        const created = await api.applyOperation(version.id, operation, branchName)
+        await Promise.all([refreshLists(), show(created.id)])
+      })
     },
-    [api, refreshLists, show, version],
+    [api, branchName, refreshLists, run, show, version],
+  )
+
+  const selectBranch = useCallback(
+    (name: string) => {
+      const branch = branches.find((candidate) => candidate.name === name)
+      if (!branch) return
+      setBranchName(name)
+      select(branch.head_version_id)
+    },
+    [branches, select],
+  )
+
+  const createBranch = useCallback(
+    (name: string) => {
+      if (!version) return
+      run(async () => {
+        const created = await api.createBranch(version.id, name)
+        await refreshLists()
+        setBranchName(created.name)
+      })
+    },
+    [api, refreshLists, run, version],
   )
 
   const dismissError = useCallback(() => setError(null), [])
 
-  return { versions, branches, version, grid, operationTypes, error, busy, select, apply, dismissError }
+  return {
+    versions,
+    branches,
+    branchName,
+    score,
+    version,
+    grid,
+    operationTypes,
+    error,
+    busy,
+    select,
+    apply,
+    selectBranch,
+    createBranch,
+    dismissError,
+  }
 }

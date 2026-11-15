@@ -1,13 +1,21 @@
 import type { Operation, StudyGraph, VersionSummary } from '../api/types'
 
-function nameOf(graph: StudyGraph | undefined, id: unknown): string {
+/** Names by element ID, for elements a later version no longer has (a removed visit). */
+export type Names = ReadonlyMap<string, string>
+
+/** Add the names of a graph's visits, activities and endpoints to ``names``. */
+export function rememberNames(names: Map<string, string>, graph: StudyGraph): void {
+  for (const node of [...graph.plan.visits, ...graph.plan.activities, ...graph.intent.endpoints])
+    names.set(node.id, node.name)
+}
+
+function lookUp(graph: StudyGraph | undefined, id: unknown, names?: Names): string {
   if (typeof id !== 'string') return String(id)
-  if (!graph) return id
   const node =
-    graph.plan.visits.find((v) => v.id === id) ??
-    graph.plan.activities.find((a) => a.id === id) ??
-    graph.intent.endpoints.find((e) => e.id === id)
-  return node ? node.name : id
+    graph?.plan.visits.find((v) => v.id === id) ??
+    graph?.plan.activities.find((a) => a.id === id) ??
+    graph?.intent.endpoints.find((e) => e.id === id)
+  return node ? node.name : (names?.get(id) ?? id)
 }
 
 function nested(operation: Operation, key: string): string {
@@ -16,9 +24,14 @@ function nested(operation: Operation, key: string): string {
 }
 
 /** A one-line, human-readable label for an operation in the version timeline. */
-export function describeOperation(operation: Operation | null, graph?: StudyGraph): string {
+export function describeOperation(
+  operation: Operation | null,
+  graph?: StudyGraph,
+  names?: Names,
+): string {
   if (!operation) return 'Reference study loaded'
   const o = operation
+  const nameOf = (g: StudyGraph | undefined, id: unknown) => lookUp(g, id, names)
   switch (o.type) {
     case 'MoveVisit':
       return `Move visit ${nameOf(graph, o.visit_id)} to Day ${o.day}`

@@ -71,6 +71,16 @@ export function ScheduleGrid({ grid, editable, highlight, onOperation }: Props) 
                 <span className="visit-meta">
                   ±{visit.window} d · {visit.on_site ? 'on site' : 'remote'}
                 </span>
+                <button
+                  type="button"
+                  className="remove-visit"
+                  data-testid={`remove-visit-${visit.id}`}
+                  aria-label={`Remove visit ${visit.name}`}
+                  disabled={!editable}
+                  onClick={() => onOperation({ type: 'RemoveVisit', visit_id: visit.id })}
+                >
+                  Remove
+                </button>
               </th>
             ))}
           </tr>
