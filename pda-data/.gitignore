@@ -1,0 +1,7 @@
+output/
+.venv/
+.coverage
+coverage.xml
+.mypy_cache/
+sbom.json
+build/
