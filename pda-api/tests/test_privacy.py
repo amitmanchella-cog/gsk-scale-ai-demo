@@ -10,9 +10,9 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
-from tests.conftest import upload
 
 from pda_api.db import Base
+from tests.conftest import upload
 
 PERSON_COLUMN = re.compile(
     r"(^|_)(name|first|last|surname|email|e_mail|phone|address|dob|birth|birthdate|patient|subject|participant|"

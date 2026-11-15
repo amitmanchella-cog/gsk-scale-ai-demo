@@ -45,7 +45,7 @@ select = ["E", "F", "I", "W", "B", "UP"]
 extend-immutable-calls = ["fastapi.Depends", "fastapi.File", "fastapi.Query"]
 
 [tool.ruff.lint.isort]
-known-first-party = ["pda_api"]
+known-first-party = ["pda_api", "tests"]
 
 [tool.mypy]
 python_version = "3.11"

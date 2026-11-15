@@ -4,13 +4,13 @@ import json
 from pathlib import Path
 
 import pytest
-from tests.conftest import as_docx, sample_text
 
 from pda_api.documents import UnsupportedDocumentError, read_document
 from pda_api.evaluation import field_f1
 from pda_api.providers import get_provider
 from pda_api.providers.mock import MockProvider, parse_age, split_sections
 from pda_api.schemas import ProtocolDesign
+from tests.conftest import as_docx, sample_text
 
 LABELLED = Path(__file__).parent / "fixtures" / "labelled" / "eligibility.json"
 
