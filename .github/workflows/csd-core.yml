@@ -1,0 +1,50 @@
+name: csd-core
+
+on:
+  pull_request:
+    paths:
+      - "csd-core/**"
+      - ".github/workflows/csd-core.yml"
+  push:
+    branches: [main]
+    paths:
+      - "csd-core/**"
+      - ".github/workflows/csd-core.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: csd-core-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: csd-core (ruff, mypy, pytest, import-linter, pip-audit)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: csd-core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: csd-core/pyproject.toml
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip setuptools
+          pip install -e ".[dev]"
+      - name: Lint (ruff)
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Types (mypy)
+        run: mypy
+      - name: Import contracts (import-linter)
+        run: lint-imports
+      - name: Unit and property tests with coverage
+        run: pytest
+      - name: Dependency audit (pip-audit)
+        run: pip-audit --skip-editable
