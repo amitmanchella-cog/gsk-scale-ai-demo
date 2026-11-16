@@ -61,6 +61,20 @@ def test_prose_mentioning_exclusion_criteria_does_not_switch_section() -> None:
     assert exclusion == []
 
 
+def test_escaped_and_lettered_numbering_starts_a_new_item() -> None:
+    # Shape of NCT04609904.
+    text = (
+        "Inclusion Criteria:\n\n1\\. Adults with asthma\n\nExclusion Criteria:\n\n"
+        "1\\. Respiratory infection within 4 weeks of V1.\n\n"
+        "2a. Biological therapy for asthma would be appropriate.\n\n"
+        "2b. Any investigational biologic within 4 months.\n\n"
+        "3\\) Current smokers"
+    )
+    inclusion, exclusion = split_criteria(text)
+    assert len(inclusion) == 1
+    assert len(exclusion) == 4
+
+
 def test_parse_eligibility_thresholds_and_categories() -> None:
     parsed = parse_eligibility(ELIGIBILITY)
     assert parsed.thresholds["hba1c"] == Bounds(7.0, 10.5)
