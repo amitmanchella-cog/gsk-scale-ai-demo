@@ -93,6 +93,9 @@ def test_parse_eligibility_thresholds_and_categories() -> None:
         ("hba1c < 6.5%", True, Bounds(6.5, None)),
         ("hba1c at screening", False, Bounds()),
         ("hba1c >= 250", False, Bounds()),
+        ("fev1 within 20 to 60 minutes following up to 4 inhalations", False, Bounds()),
+        ("fev1 >= 12% and >= 200 ml within 15-30 min", False, Bounds(12.0, None)),
+        ("fev1 >= 60% within 30 days", False, Bounds(60.0, None)),
     ],
 )
 def test_parse_bounds(text: str, exclusion: bool, expected: Bounds) -> None:
@@ -105,6 +108,14 @@ def test_item_thresholds_reads_verbal_operators() -> None:
         "pack_years": Bounds(10.0, None)
     }
     assert item_thresholds("Body mass index greater than 45 kg/m2", exclusion=True) == {"bmi": Bounds(None, 45.0)}
+
+
+@pytest.mark.parametrize(
+    "unit",
+    ["mL/min/1.73m2", "milliliters per minute per 1.73 m2", "milliliter (mL)/minute (min)/1.73 m2", "ml.min-1.1.73 m2"],
+)
+def test_rate_units_still_give_a_renal_threshold(unit: str) -> None:
+    assert item_thresholds(f"eGFR < 45 {unit}", exclusion=True) == {"egfr": Bounds(45.0, None)}
 
 
 def test_item_categories() -> None:

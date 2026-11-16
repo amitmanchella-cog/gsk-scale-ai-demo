@@ -47,6 +47,14 @@ CATEGORIES: dict[str, str] = {
 }
 
 _NUM = r"(\d{1,3}(?:[.,]\d{1,2})?)"
+# A number followed by a time, volume or dose unit is not a threshold on the measure itself
+# ("increase in FEV1 within 20 to 60 minutes"). Rates such as "60 mL/min" stay thresholds.
+_NOT_A_UNIT = (
+    r"(?![\d.,]*\d)(?!\s*(?:percent\s*)?(?:\(%\)\s*)?"
+    r"(?:min(?:ute)?s?\b|hours?\b|hrs?\b|days?\b|weeks?\b|months?\b|"
+    r"(?:m?l|millilit(?:er|re)s?)\b(?!\W*(?:\(ml\)\W*)?(?:per\s+)?(?:min|hour))|"
+    r"mc?g\b(?!\s*/)|µg|puffs?\b|inhalations?\b))"
+)
 _HEADER = re.compile(r"^\W*(?:key\s+)?(inclusion|exclusion)\s+criteria\W*$", re.IGNORECASE)
 _INLINE_HEADER = re.compile(r"(?:key\s+)?(inclusion|exclusion)\s+criteria\s*:?", re.IGNORECASE)
 # A capitalised "Exclusion Criteria:" in the middle of a line starts a new section there.
@@ -139,12 +147,12 @@ def parse_bounds(segment: str, low: float, high: float, *, exclusion: bool = Fal
 
     lower: float | None = None
     upper: float | None = None
-    rng = re.search(rf"{_NUM}\s*%?\s*(?:-|to|and)\s*(?:<=|<)?\s*{_NUM}", segment)
+    rng = re.search(rf"{_NUM}\s*%?\s*(?:-|to|and)\s*(?:<=|<)?\s*{_NUM}{_NOT_A_UNIT}", segment)
     if rng and not exclusion:
         a, b = _to_float(rng.group(1)), _to_float(rng.group(2))
         if plausible(a) and plausible(b) and a < b:
             return Bounds(a, b)
-    for op, raw in re.findall(rf"(>=|<=|>|<)\s*(?:or\s*=\s*)?{_NUM}", segment):
+    for op, raw in re.findall(rf"(>=|<=|>|<)\s*(?:or\s*=\s*)?{_NUM}{_NOT_A_UNIT}", segment):
         value = _to_float(raw)
         if not plausible(value):
             continue
