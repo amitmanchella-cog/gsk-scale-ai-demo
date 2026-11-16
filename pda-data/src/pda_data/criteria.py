@@ -135,11 +135,15 @@ def _to_float(value: str) -> float:
     return float(value.replace(",", "."))
 
 
-def parse_bounds(segment: str, low: float, high: float, *, exclusion: bool = False) -> Bounds:
+def parse_bounds(
+    segment: str, low: float, high: float, *, exclusion: bool = False, keyword: str | None = None
+) -> Bounds:
     """Extract the allowed window from a normalised text segment.
 
     For exclusion criteria the stated window is what is *excluded*, so
     ``HbA1c > 10%`` in an exclusion list means an allowed upper bound of 10.
+    ``keyword`` is the regex of the measure, needed to read a value written before it
+    (``7.5% <= HbA1c <= 11%``).
     """
 
     def plausible(value: float) -> bool:
@@ -152,7 +156,13 @@ def parse_bounds(segment: str, low: float, high: float, *, exclusion: bool = Fal
         a, b = _to_float(rng.group(1)), _to_float(rng.group(2))
         if plausible(a) and plausible(b) and a < b:
             return Bounds(a, b)
-    for op, raw in re.findall(rf"(>=|<=|>|<)\s*(?:or\s*=\s*)?{_NUM}{_NOT_A_UNIT}", segment):
+    comparisons = re.findall(rf"(>=|<=|>|<)\s*(?:or\s*=\s*)?{_NUM}{_NOT_A_UNIT}", segment)
+    if keyword:
+        # "7.5% <= hba1c" states the same bound as "hba1c >= 7.5%".
+        flipped = {">=": "<=", "<=": ">=", ">": "<", "<": ">"}
+        value_first = re.findall(rf"{_NUM}\s*%?\s*(>=|<=|>|<)\s*(?:{keyword})", segment)
+        comparisons = [(flipped[op], raw) for raw, op in value_first] + comparisons
+    for op, raw in comparisons:
         value = _to_float(raw)
         if not plausible(value):
             continue
@@ -188,7 +198,7 @@ def item_thresholds(item: str, *, exclusion: bool) -> dict[str, Bounds]:
         # Look shortly before the keyword ("<= 10% HbA1c") and after it, up to the next clause.
         start = max(0, match.start() - 12)
         segment = re.split(r"[;]|\.\s", text[start : match.end() + 90])[0]
-        bounds = parse_bounds(segment, low, high, exclusion=exclusion)
+        bounds = parse_bounds(segment, low, high, exclusion=exclusion, keyword=keyword)
         if not bounds.empty:
             found[name] = bounds
     return found

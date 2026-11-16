@@ -118,6 +118,12 @@ def test_rate_units_still_give_a_renal_threshold(unit: str) -> None:
     assert item_thresholds(f"eGFR < 45 {unit}", exclusion=True) == {"egfr": Bounds(45.0, None)}
 
 
+def test_item_thresholds_reads_value_first_comparisons() -> None:
+    assert item_thresholds("7.5% ≤ HbA1c ≤ 11%", exclusion=False) == {"hba1c": Bounds(7.5, 11.0)}
+    assert item_thresholds("18.5 < BMI < 35 kg/m2", exclusion=False) == {"bmi": Bounds(18.5, 35.0)}
+    assert item_thresholds("10% < HbA1c", exclusion=True) == {"hba1c": Bounds(None, 10.0)}
+
+
 def test_item_categories() -> None:
     assert item_categories("History of myocardial infarction or stroke") == ["cardiovascular"]
     assert item_categories("Able to walk") == []
