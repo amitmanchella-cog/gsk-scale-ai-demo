@@ -1,0 +1,46 @@
+{
+  "source": "https://clinicaltrials.gov/api/v2/studies",
+  "fetched_at": "2026-11-15T17:26:32Z",
+  "filter.advanced": "AREA[StudyType]INTERVENTIONAL AND AREA[Phase](PHASE2 OR PHASE3)",
+  "fields": [
+    "NCTId",
+    "BriefTitle",
+    "OverallStatus",
+    "WhyStopped",
+    "StartDate",
+    "PrimaryCompletionDate",
+    "CompletionDate",
+    "EnrollmentCount",
+    "EnrollmentType",
+    "Phase",
+    "StudyType",
+    "Condition",
+    "EligibilityCriteria",
+    "MinimumAge",
+    "MaximumAge",
+    "Sex",
+    "HealthyVolunteers",
+    "LocationCountry",
+    "LeadSponsorClass"
+  ],
+  "sort": "StartDate:desc",
+  "max_per_indication": 700,
+  "files": {
+    "benchmark_studies.jsonl.gz": {
+      "filter.overallStatus": "COMPLETED|TERMINATED",
+      "counts": {
+        "asthma": 700,
+        "copd": 700,
+        "type_2_diabetes": 700
+      }
+    },
+    "recruiting_studies.jsonl.gz": {
+      "filter.overallStatus": "RECRUITING",
+      "counts": {
+        "asthma": 86,
+        "copd": 94,
+        "type_2_diabetes": 136
+      }
+    }
+  }
+}
