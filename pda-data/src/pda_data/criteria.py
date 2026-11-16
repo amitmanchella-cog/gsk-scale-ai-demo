@@ -256,8 +256,7 @@ _STOP_RULES: list[tuple[str, str]] = [
 # Mentions of recruitment that do not say it was too slow.
 _NOT_LOW_ACCRUAL = re.compile(
     r"closed to (?:further )?(?:accrual|enrol\w*|recruit\w*)|"
-    r"(?:accrual|enrol\w*|recruit\w*) (?:had been |has been |was |is |were )?complete\w*|"
-    r"(?:completion of|completing|completed) (?:the )?(?:accrual|enrol\w*|recruit\w*)"
+    r"(?<!before )(?<!until )(?:accrual|enrol\w*|recruit\w*) (?:had been |has been |was |is |were )?complete\w*"
 )
 _NOT_SAFETY = re.compile(
     r"no(?:t|n)?[\s-]*(?:due to |related to |for |a )?(?:any )?safety|no safety|unrelated to safety|non-safety"
