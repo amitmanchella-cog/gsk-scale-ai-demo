@@ -106,10 +106,14 @@ def main() -> None:
         "max_per_indication": args.max_per_indication,
         "files": {},
     }
+    # Each file is written next to the snapshot and swapped in only once every fetch has succeeded,
+    # so a failed refresh leaves the previous snapshot intact.
+    partials: dict[Path, Path] = {}
     for dataset, statuses in DATASETS.items():
         path = args.out / f"{dataset}_studies.jsonl.gz"
+        partials[path] = path.with_name(path.name + ".partial")
         counts: dict[str, int] = {}
-        with gzip.open(path, "wt", encoding="utf-8") as fh:
+        with gzip.open(partials[path], "wt", encoding="utf-8") as fh:
             for key, condition in INDICATIONS.items():
                 studies = fetch(condition, statuses, args.max_per_indication)
                 counts[key] = len(studies)
@@ -118,6 +122,8 @@ def main() -> None:
                     fh.write(json.dumps({"queryIndication": key, **study}, sort_keys=True) + "\n")
                 print(f"{dataset}/{key}: {len(studies)} studies")
         manifest["files"][path.name] = {"filter.overallStatus": statuses, "counts": counts}
+    for path, partial in partials.items():
+        partial.replace(path)
     (args.out / "MANIFEST.json").write_text(json.dumps(manifest, indent=2) + "\n")
 
 
