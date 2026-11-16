@@ -137,7 +137,14 @@ def test_item_thresholds_reads_verbal_operators() -> None:
 
 @pytest.mark.parametrize(
     "unit",
-    ["mL/min/1.73m2", "milliliters per minute per 1.73 m2", "milliliter (mL)/minute (min)/1.73 m2", "ml.min-1.1.73 m2"],
+    [
+        "mL/min/1.73m2",
+        "mL/h",
+        "mL/hour/1.73 m2",
+        "milliliters per minute per 1.73 m2",
+        "milliliter (mL)/minute (min)/1.73 m2",
+        "ml.min-1.1.73 m2",
+    ],
 )
 def test_rate_units_still_give_a_renal_threshold(unit: str) -> None:
     assert item_thresholds(f"eGFR < 45 {unit}", exclusion=True) == {"egfr": Bounds(45.0, None)}

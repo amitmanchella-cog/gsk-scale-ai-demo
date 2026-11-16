@@ -52,7 +52,7 @@ _NUM = r"(\d{1,3}(?:[.,]\d{1,2})?)"
 _NOT_A_UNIT = (
     r"(?![\d.,]*\d)(?!\s*(?:percent\s*)?(?:\(%\)\s*)?"
     r"(?:min(?:ute)?s?\b|hours?\b|hrs?\b|days?\b|weeks?\b|months?\b|"
-    r"(?:m?l|millilit(?:er|re)s?)\b(?!\W*(?:\(ml\)\W*)?(?:per\s+)?(?:min|hour))|"
+    r"(?:m?l|millilit(?:er|re)s?)\b(?!\W*(?:\(ml\)\W*)?(?:per\s+)?(?:min|hour|hr|h\b))|"
     r"mc?g\b(?!\s*/)|µg|puffs?\b|inhalations?\b))"
 )
 _HEADER = re.compile(r"^\W*(?:key\s+)?(inclusion|exclusion)\s+criteria\W*$", re.IGNORECASE)
