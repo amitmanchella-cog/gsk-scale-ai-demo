@@ -49,6 +49,8 @@ CATEGORIES: dict[str, str] = {
 _NUM = r"(\d{1,3}(?:[.,]\d{1,2})?)"
 _HEADER = re.compile(r"^\W*(?:key\s+)?(inclusion|exclusion)\s+criteria\W*$", re.IGNORECASE)
 _INLINE_HEADER = re.compile(r"(?:key\s+)?(inclusion|exclusion)\s+criteria\s*:?", re.IGNORECASE)
+# A capitalised "Exclusion Criteria:" in the middle of a line starts a new section there.
+_MIDLINE_HEADER = re.compile(r"(?<=\S)[ \t]+(?=(?:Key\s+)?(?:Inclusion|Exclusion)\s+Criteria\s*:)")
 _BULLET = re.compile(r"^\s*(?:[*\-•·]|\(?\d{1,2}[.)]|\(?[a-z][.)])\s+")
 _REPLACEMENTS: list[tuple[str, str]] = [
     (r"\\", ""),
@@ -95,7 +97,7 @@ def split_criteria(text: str | None) -> tuple[list[str], list[str]]:
     if not text:
         return inclusion, exclusion
     current = inclusion
-    for raw_line in text.splitlines():
+    for raw_line in _MIDLINE_HEADER.sub("\n", text).splitlines():
         line = raw_line.strip()
         if not line:
             continue

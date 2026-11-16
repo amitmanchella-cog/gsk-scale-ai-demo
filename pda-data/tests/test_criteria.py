@@ -41,6 +41,26 @@ def test_split_criteria_handles_inline_headers_and_empty_text() -> None:
     assert split_criteria(None) == ([], [])
 
 
+def test_exclusion_header_in_the_middle_of_a_line_switches_section() -> None:
+    # Shape of NCT03061214: the whole block is one line.
+    text = (
+        "Inclusion Criteria: - Male or female, age equal to or above 18 years "
+        "Exclusion Criteria: - Impaired renal function defined as eGFR below 60 ml/min/1.73 m\\^2"
+    )
+    inclusion, exclusion = split_criteria(text)
+    assert len(inclusion) == 1
+    assert exclusion == ["Impaired renal function defined as eGFR below 60 ml/min/1.73 m\\^2"]
+    assert parse_eligibility(text).thresholds["egfr"] == Bounds(60.0, None)
+
+
+def test_prose_mentioning_exclusion_criteria_does_not_switch_section() -> None:
+    inclusion, exclusion = split_criteria(
+        "Inclusion Criteria:\n* Meets none of the exclusion criteria: confirmed at screening"
+    )
+    assert len(inclusion) == 1
+    assert exclusion == []
+
+
 def test_parse_eligibility_thresholds_and_categories() -> None:
     parsed = parse_eligibility(ELIGIBILITY)
     assert parsed.thresholds["hba1c"] == Bounds(7.0, 10.5)
