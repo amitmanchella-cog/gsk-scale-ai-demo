@@ -253,6 +253,12 @@ _STOP_RULES: list[tuple[str, str]] = [
     ("funding", r"fund|financ|budget|grant"),
     ("business", r"business|sponsor|strategic|company|corporate|commercial|portfolio|administrative"),
 ]
+# Mentions of recruitment that do not say it was too slow.
+_NOT_LOW_ACCRUAL = re.compile(
+    r"closed to (?:further )?(?:accrual|enrol\w*|recruit\w*)|"
+    r"(?:accrual|enrol\w*|recruit\w*) (?:had been |has been |was |is |were )?complete\w*|"
+    r"(?:completion of|completing|completed) (?:the )?(?:accrual|enrol\w*|recruit\w*)"
+)
 _NOT_SAFETY = re.compile(
     r"no(?:t|n)?[\s-]*(?:due to |related to |for |a )?(?:any )?safety|no safety|unrelated to safety|non-safety"
 )
@@ -262,7 +268,7 @@ def classify_why_stopped(reason: str | None) -> str:
     """Bucket a free-text ``whyStopped`` reason. Returns ``"none"`` when empty."""
     if not reason or not reason.strip():
         return "none"
-    text = reason.lower()
+    text = _NOT_LOW_ACCRUAL.sub("", reason.lower())
     for category, pattern in _STOP_RULES:
         if category == "safety" and _NOT_SAFETY.search(text):
             stripped = _NOT_SAFETY.sub("", text)
