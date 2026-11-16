@@ -12,7 +12,7 @@ from pyspark.sql import DataFrame, Row, SparkSession
 
 from pda_data import DATASET_VERSION
 from pda_data.job import assert_no_person_level_columns, run
-from pda_data.schema import RECRUITING_COLUMNS, TRIAL_FEATURE_COLUMNS
+from pda_data.schema import ACCRUAL_BENCHMARK_COLUMNS, RECRUITING_COLUMNS, TRIAL_FEATURE_COLUMNS
 from pda_data.transform import build_recruiting_trials, build_trial_features, deduplicate, flatten
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -122,9 +122,14 @@ def test_job_writes_versioned_parquet(spark: SparkSession, tmp_path: Path) -> No
     (raw_dir / "MANIFEST.json").write_text(json.dumps({"source": "fixture", "fetched_at": "2026-01-01T00:00:00Z"}))
 
     manifest = run(spark, raw_dir, tmp_path / "out")
-
     version_dir = tmp_path / "out" / f"v{DATASET_VERSION}"
-    assert manifest["tables"] == {"trial_features": {"rows": 5}, "recruiting_trials": {"rows": 3}}
+
+    tables = manifest["tables"]
+    assert isinstance(tables, dict)
+    assert tables["trial_features"] == {"rows": 5}
+    assert tables["recruiting_trials"] == {"rows": 3}
+    assert set(tables) == {"trial_features", "recruiting_trials", "accrual_benchmarks", "country_accrual"}
+    assert spark.read.parquet(str(version_dir / "accrual_benchmarks")).columns == ACCRUAL_BENCHMARK_COLUMNS
     assert json.loads((version_dir / "_MANIFEST.json").read_text())["source"]["api"] == "fixture"
     written = spark.read.parquet(str(version_dir / "trial_features"))
     assert written.count() == 5

@@ -20,7 +20,15 @@ from pyspark.sql import functions as F
 from pyspark.sql import types as T
 
 from pda_data import criteria
-from pda_data.schema import CRITERIA_SCHEMA, RECRUITING_COLUMNS, THRESHOLD_NAMES, TRIAL_FEATURE_COLUMNS
+from pda_data.schema import (
+    ACCRUAL_BENCHMARK_COLUMNS,
+    ACCRUAL_PERCENTILES,
+    COUNTRY_ACCRUAL_COLUMNS,
+    CRITERIA_SCHEMA,
+    RECRUITING_COLUMNS,
+    THRESHOLD_NAMES,
+    TRIAL_FEATURE_COLUMNS,
+)
 
 INDICATION_KEYWORDS = {
     "asthma": "asthma",
@@ -177,4 +185,62 @@ def build_recruiting_trials(raw: DataFrame) -> DataFrame:
         .agg(F.count(F.lit(1)).cast("int").alias("sites_in_country"))
         .select(*RECRUITING_COLUMNS)
         .orderBy("nct_id", "country")
+    )
+
+
+def _usable_rate() -> Column:
+    """The accrual rate when it can feed a forecast: known and above zero."""
+    rate = F.col("accrual_rate_per_site_month")
+    return F.when(rate > 0, rate)
+
+
+def _count_if(condition: Column) -> Column:
+    return F.sum(F.when(condition, 1).otherwise(0)).cast("int")
+
+
+def build_accrual_benchmarks(features: DataFrame) -> DataFrame:
+    """Accrual-rate distribution and low-accrual termination share per indication and phase group.
+
+    This is the distribution the enrollment forecast in ``pda-api`` falls back to when a
+    protocol has too few similar trials with a usable rate. Percentiles are exact and
+    computed only over trials with registered sites and a rate above zero.
+    """
+    rate = _usable_rate()
+    percentiles = [F.percentile(rate, p / 100).alias(f"accrual_rate_p{p}") for p in ACCRUAL_PERCENTILES]
+    return (
+        features.groupBy("indication", "phase_group")
+        .agg(
+            F.count(F.lit(1)).cast("int").alias("n_trials"),
+            F.count(rate).cast("int").alias("n_with_accrual_rate"),
+            *percentiles,
+            F.percentile("site_count", 0.5).alias("median_site_count"),
+            F.percentile("duration_months", 0.5).alias("median_duration_months"),
+            _count_if(F.col("overall_status") == "TERMINATED").alias("n_terminated"),
+            _count_if(F.col("low_accrual_terminated")).alias("n_low_accrual_terminated"),
+        )
+        .withColumn("low_accrual_terminated_share", F.col("n_low_accrual_terminated") / F.col("n_trials"))
+        .select(*ACCRUAL_BENCHMARK_COLUMNS)
+        .orderBy("indication", "phase_group")
+    )
+
+
+def build_country_accrual(features: DataFrame) -> DataFrame:
+    """Per indication, phase group and country: how trials with sites in that country accrued.
+
+    A trial counts once for every country it had sites in. The rate is the trial-level rate
+    (the registry does not publish enrollment per country), so this ranks countries by the
+    trials that ran there rather than measuring the country alone.
+    """
+    rate = _usable_rate()
+    return (
+        features.select("*", F.explode("countries").alias("country"))
+        .groupBy("indication", "phase_group", "country")
+        .agg(
+            F.count(F.lit(1)).cast("int").alias("n_trials"),
+            F.count(rate).cast("int").alias("n_with_accrual_rate"),
+            F.percentile(rate, 0.5).alias("accrual_rate_p50"),
+            _count_if(F.col("low_accrual_terminated")).alias("n_low_accrual_terminated"),
+        )
+        .select(*COUNTRY_ACCRUAL_COLUMNS)
+        .orderBy("indication", "phase_group", "country")
     )

@@ -17,7 +17,7 @@ cd pda-data
 python -m venv .venv && . .venv/bin/activate
 make install      # editable install with dev tools
 make test         # pytest on a local SparkSession (no network)
-make run          # data/raw -> output/v1/{trial_features,recruiting_trials} + _MANIFEST.json
+make run          # data/raw -> output/v1/<four tables> + _MANIFEST.json
 make check        # lint + type check + tests + pip-audit
 make sbom         # CycloneDX SBOM -> sbom.json
 ```
@@ -54,6 +54,24 @@ The output folder is versioned by `pda_data.DATASET_VERSION`; bump it on a break
 | `why_stopped`, `stop_category`, `low_accrual_terminated` | Category is one of `low_accrual`, `safety`, `efficacy_futility`, `funding`, `business`, `other`, `none` |
 
 `recruiting_trials`, one row per recruiting trial and country, with the number of sites in that country.
+
+`accrual_benchmarks` (MBA-3860), one row per indication and phase group. The enrollment forecast in
+`pda-api` draws per-site accrual rates from the similar trials and falls back to this distribution:
+
+| Column | Notes |
+| --- | --- |
+| `n_trials`, `n_with_accrual_rate` | A rate is usable when the trial has registered sites and the rate is above zero |
+| `accrual_rate_p10`, `_p25`, `_p50`, `_p75`, `_p90` | Exact percentiles of patients per site per month over usable rates |
+| `median_site_count`, `median_duration_months` | |
+| `n_terminated`, `n_low_accrual_terminated`, `low_accrual_terminated_share` | Share is over all trials in the group |
+
+`country_accrual` (MBA-3860), one row per indication, phase group and country: `n_trials`,
+`n_with_accrual_rate`, `accrual_rate_p50`, `n_low_accrual_terminated`. A trial counts once for
+each country it had sites in. The registry has no per-country enrollment, so the rate is the
+trial-level rate of trials that ran in that country.
+
+Site activation dates are not published by ClinicalTrials.gov, so no activation-ramp table is
+produced. The ramp is a documented modelling assumption in `pda-api` (see the clarifying comment on MBA-3860).
 
 ## Cleaning rules
 

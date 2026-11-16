@@ -154,3 +154,28 @@ RECRUITING_COLUMNS = [
 
 # Field-name fragments that must never appear in an output schema.
 PERSON_LEVEL_TOKENS = ["name", "email", "phone", "contact", "investigator", "official", "birth", "dob", "patient_id"]
+
+ACCRUAL_PERCENTILES = (10, 25, 50, 75, 90)
+
+ACCRUAL_BENCHMARK_COLUMNS = [
+    "indication",
+    "phase_group",
+    "n_trials",
+    "n_with_accrual_rate",
+    *[f"accrual_rate_p{p}" for p in ACCRUAL_PERCENTILES],
+    "median_site_count",
+    "median_duration_months",
+    "n_terminated",
+    "n_low_accrual_terminated",
+    "low_accrual_terminated_share",
+]
+
+COUNTRY_ACCRUAL_COLUMNS = [
+    "indication",
+    "phase_group",
+    "country",
+    "n_trials",
+    "n_with_accrual_rate",
+    "accrual_rate_p50",
+    "n_low_accrual_terminated",
+]
