@@ -58,7 +58,7 @@ _NOT_A_UNIT = (
 _HEADER = re.compile(r"^\W*(?:key\s+)?(inclusion|exclusion)\s+criteria\W*$", re.IGNORECASE)
 _INLINE_HEADER = re.compile(r"(?:key\s+)?(inclusion|exclusion)\s+criteria\s*:?", re.IGNORECASE)
 # A capitalised "Exclusion Criteria:" in the middle of a line starts a new section there.
-_MIDLINE_HEADER = re.compile(r"(?<=\S)[ \t]+(?=(?:Key\s+)?(?:Inclusion|Exclusion)\s+Criteria\s*:)")
+_MIDLINE_HEADER = re.compile(r"(?<=\S)(?<!\bKey)[ \t]+(?=(?:Key\s+)?(?:Inclusion|Exclusion)\s+Criteria\s*:)")
 # The registry escapes Markdown, so numbered items can arrive as "1\." or "2a.".
 _BULLET = re.compile(r"^\s*(?:[*\-•·]|\(?\d{1,2}[a-z]?\\?[.)]|\(?[a-z]\\?[.)])\s+")
 _REPLACEMENTS: list[tuple[str, str]] = [

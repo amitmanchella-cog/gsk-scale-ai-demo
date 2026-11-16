@@ -53,6 +53,16 @@ def test_exclusion_header_in_the_middle_of_a_line_switches_section() -> None:
     assert parse_eligibility(text).thresholds["egfr"] == Bounds(60.0, None)
 
 
+def test_key_header_is_not_split_after_key() -> None:
+    inclusion, exclusion = split_criteria(
+        "Key Inclusion Criteria: adults with COPD Key Exclusion Criteria: current asthma"
+    )
+    assert inclusion == ["adults with COPD"]
+    assert exclusion == ["current asthma"]
+    inclusion, _ = split_criteria("Key Inclusion Criteria:\n* Adults with COPD\n* Smokers")
+    assert len(inclusion) == 2
+
+
 def test_prose_mentioning_exclusion_criteria_does_not_switch_section() -> None:
     inclusion, exclusion = split_criteria(
         "Inclusion Criteria:\n* Meets none of the exclusion criteria: confirmed at screening"
