@@ -75,6 +75,21 @@ def test_escaped_and_lettered_numbering_starts_a_new_item() -> None:
     assert len(exclusion) == 4
 
 
+def test_later_criteria_tighten_the_window() -> None:
+    # Shape of NCT06739044: screening and randomisation limits on the same measure.
+    parsed = parse_eligibility(
+        "Inclusion Criteria:\n"
+        "1. HbA1c 7.5 - 11.0 % (both inclusive) (screening)\n"
+        "2. HbA1c 7.0 - 10.5 % (both inclusive) (randomisation)\n"
+    )
+    assert parsed.thresholds["hba1c"] == Bounds(7.5, 10.5)
+
+
+def test_contradicting_window_is_ignored() -> None:
+    parsed = parse_eligibility("Inclusion Criteria:\n* BMI 20-25 kg/m2\n* BMI 30-40 kg/m2 in cohort B\n")
+    assert parsed.thresholds["bmi"] == Bounds(20.0, 25.0)
+
+
 def test_parse_eligibility_thresholds_and_categories() -> None:
     parsed = parse_eligibility(ELIGIBILITY)
     assert parsed.thresholds["hba1c"] == Bounds(7.0, 10.5)

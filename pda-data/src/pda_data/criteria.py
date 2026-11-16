@@ -179,12 +179,18 @@ def parse_bounds(
 
 
 def _merge(current: Bounds | None, new: Bounds) -> Bounds:
+    """Every criterion has to hold, so the allowed window is the tightest of the stated ones.
+
+    A window that would contradict the one already found is ignored.
+    """
     if current is None:
         return new
-    return Bounds(
-        current.lower if current.lower is not None else new.lower,
-        current.upper if current.upper is not None else new.upper,
-    )
+    lowers = [value for value in (current.lower, new.lower) if value is not None]
+    uppers = [value for value in (current.upper, new.upper) if value is not None]
+    merged = Bounds(max(lowers, default=None), min(uppers, default=None))
+    if merged.lower is not None and merged.upper is not None and merged.lower >= merged.upper:
+        return current
+    return merged
 
 
 def item_thresholds(item: str, *, exclusion: bool) -> dict[str, Bounds]:
