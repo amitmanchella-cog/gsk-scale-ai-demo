@@ -235,3 +235,12 @@ def test_report_is_built_and_rendered_off_the_event_loop(
     record(f"render_{fmt}")
     assert client.get(f"/api/protocols/{protocol_id}/report", params={"format": fmt}).status_code == 200
     assert on_loop == {"build_report": False, f"render_{fmt}": False}
+
+
+@pytest.mark.parametrize("fmt", ["html", "pdf"])
+def test_export_does_not_contain_the_full_protocol_id(client: TestClient, protocol_id: str, fmt: str) -> None:
+    response = client.get(f"/api/protocols/{protocol_id}/report", params={"format": fmt})
+    text = _pdf_text(response.content) if fmt == "pdf" else response.text
+    assert f"Reportreference:{protocol_id[:8]}." in "".join(text.split())
+    assert protocol_id not in text
+    assert protocol_id.encode() not in response.content

@@ -165,7 +165,8 @@ def blocks(report: Report) -> list[Block]:
     out: list[Block] = [
         Heading(f"Design review: {design.title or report.document}", level=1),
         Text(
-            f"Source document: {report.document}. Protocol ID: {report.protocol_id}. "
+            # The full ID is the only key to the stored draft, so a shared export shows a short reference.
+            f"Source document: {report.document}. Report reference: {report.protocol_id[:8]}. "
             f"Uploaded {report.created_at:%Y-%m-%d %H:%M} UTC."
         ),
         Text(DISCLAIMER),
