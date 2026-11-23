@@ -98,15 +98,14 @@ test.describe('author journey on the weak sample protocol', () => {
     });
 
     await test.step('the exported report contains the accepted changes and their cited trials', async () => {
-      const accepted = await page
-        .locator('[data-testid="suggestion"]:has(input:checked)')
-        .getByTestId('suggestion-title')
-        .allInnerTexts();
+      const accepted: { title: string; cited: string[] }[] = [];
+      for (const suggestion of await page.locator('[data-testid="suggestion"]:has(input:checked)').all()) {
+        accepted.push({
+          title: await suggestion.getByTestId('suggestion-title').innerText(),
+          cited: await suggestion.getByTestId('citation').allTextContents(),
+        });
+      }
       expect(accepted).toHaveLength(2);
-      const cited = await page
-        .locator('[data-testid="suggestion"]:has(input:checked)')
-        .getByTestId('citation')
-        .allTextContents();
       const scenarioP50 = await page.getByTestId('what-if-p50').innerText();
       await expect(page.getByTestId('export-summary')).toContainText('2 accepted changes');
 
@@ -119,8 +118,15 @@ test.describe('author journey on the weak sample protocol', () => {
       await htmlDownload.saveAs(htmlPath);
       const html = await readFile(htmlPath, 'utf8');
       expect(html).toContain('4. Accepted changes');
-      for (const title of accepted) expect(html).toContain(title);
-      for (const id of cited) expect(html).toContain(id);
+      // Each change's trials are looked for under that change's own heading, not in the whole report.
+      for (const { title, cited } of accepted) {
+        const start = html.indexOf(`${title}</h3>`);
+        expect(start).toBeGreaterThan(html.indexOf('4. Accepted changes'));
+        const change = html.slice(start, html.indexOf('<h', start + title.length + 5));
+        expect(cited.length).toBeGreaterThanOrEqual(5);
+        expect(change).toContain(`Cited benchmark trials (${cited.length})`);
+        for (const id of cited) expect(change).toContain(`>${id}</a>`);
+      }
       expect(html).toContain('With accepted changes');
       expect(html).toContain(`<td>${scenarioP50}</td>`);
       await testInfo.attach('design-review.html', { path: htmlPath, contentType: 'text/html' });
