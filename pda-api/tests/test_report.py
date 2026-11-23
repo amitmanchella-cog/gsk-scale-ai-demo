@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from io import BytesIO
 
 import pytest
@@ -207,3 +208,30 @@ def test_json_upload_time_is_utc_like_the_protocol_response(client: TestClient, 
     created_at = client.get(f"/api/protocols/{protocol_id}/report", params={"format": "json"}).json()["created_at"]
     assert created_at.endswith(("Z", "+00:00"))
     assert created_at == client.get(f"/api/protocols/{protocol_id}").json()["created_at"]
+
+
+@pytest.mark.parametrize("fmt", ["html", "pdf"])
+def test_report_is_built_and_rendered_off_the_event_loop(
+    client: TestClient, protocol_id: str, monkeypatch: pytest.MonkeyPatch, fmt: str
+) -> None:
+    import pda_api.routers.report as router
+
+    on_loop: dict[str, bool] = {}
+
+    def record(name: str) -> None:
+        original = getattr(router, name)
+
+        def wrapper(*args: object) -> object:
+            try:
+                asyncio.get_running_loop()
+                on_loop[name] = True
+            except RuntimeError:
+                on_loop[name] = False
+            return original(*args)
+
+        monkeypatch.setattr(router, name, wrapper)
+
+    record("build_report")
+    record(f"render_{fmt}")
+    assert client.get(f"/api/protocols/{protocol_id}/report", params={"format": fmt}).status_code == 200
+    assert on_loop == {"build_report": False, f"render_{fmt}": False}
