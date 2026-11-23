@@ -149,6 +149,12 @@ def _forecast_grid(baseline: Forecast, scenario: Forecast | None) -> Grid:
     )
 
 
+def _rate_source(forecast: Forecast) -> str:
+    if forecast.rate_source == "similar_trials":
+        return f"{forecast.n_rates} benchmark rates"
+    return "the indication and phase percentiles, because too few similar trials report a usable rate"
+
+
 def blocks(report: Report) -> list[Block]:
     design, assessment, baseline = report.design, report.assessment, report.baseline
     risk = baseline.termination_risk
@@ -201,7 +207,7 @@ def blocks(report: Report) -> list[Block]:
         Heading("3. Enrollment forecast and termination risk"),
         Text(
             f"Months to enroll {baseline.target_enrollment:,} patients, from {baseline.simulations:,} simulations with "
-            f"seed {baseline.seed}. Per-site accrual is drawn from {baseline.n_rates} benchmark rates "
+            f"seed {baseline.seed}. Per-site accrual is drawn from {_rate_source(baseline)} "
             f"(median {num(baseline.median_benchmark_rate, 2)} patients per site per month)."
         ),
         _forecast_grid(baseline, report.scenario),

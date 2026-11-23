@@ -6,7 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 from pypdf import PdfReader
 
-from pda_api.report import Grid, blocks, num, pct, render_html
+from pda_api.report import Grid, Text, blocks, num, pct, render_html
 from pda_api.schemas import Report
 from tests.conftest import WEAK, sample_text, upload
 from tests.test_privacy import person_values
@@ -173,3 +173,13 @@ def test_pdf_splits_a_row_taller_than_a_page(client: TestClient) -> None:
     assert response.content.startswith(b"%PDF")
     # The repeated table header lands inside a sentence at each page break, so count one word.
     assert _pdf_text(response.content).count("documented") == 400
+
+
+def test_forecast_text_names_the_percentile_fallback(client: TestClient, protocol_id: str) -> None:
+    report = _report(client, protocol_id)
+    fallback = report.baseline.model_copy(update={"rate_source": "indication_phase_benchmark", "n_rates": 0})
+    texts = [
+        block.text for block in blocks(report.model_copy(update={"baseline": fallback})) if isinstance(block, Text)
+    ]
+    assert any("drawn from the indication and phase percentiles" in text for text in texts)
+    assert not any("0 benchmark rates" in text for text in texts)
