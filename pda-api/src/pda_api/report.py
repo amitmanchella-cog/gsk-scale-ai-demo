@@ -76,9 +76,9 @@ def build_report(
         similar_trials=[to_schema(trial, similarity) for trial, similarity in ranked],
     )
     baseline = context.baseline
-    suggestions, _ = suggest(context)
-    by_id = {suggestion.id: suggestion for suggestion in suggestions}
     wanted = list(dict.fromkeys(accept or []))
+    # Suggestions cost several simulations each, so they are only built when a change was accepted.
+    by_id = {suggestion.id: suggestion for suggestion in suggest(context)[0]} if wanted else {}
     unknown = [identifier for identifier in wanted if identifier not in by_id]
     if unknown:
         raise ChangeError(f"Not a validated suggestion for this protocol: {', '.join(unknown)}")

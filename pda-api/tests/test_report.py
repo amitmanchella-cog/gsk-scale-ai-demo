@@ -112,6 +112,16 @@ def test_html_is_self_contained_and_escapes_text(client: TestClient, protocol_id
     assert html.startswith("<!doctype html>")
 
 
+def test_draft_only_report_does_not_build_suggestions(
+    client: TestClient, protocol_id: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def fail(context: object) -> None:
+        raise AssertionError("suggest() was called for a report without accepted changes")
+
+    monkeypatch.setattr("pda_api.report.suggest", fail)
+    assert _report(client, protocol_id).accepted_changes == []
+
+
 def test_report_without_accepted_changes(client: TestClient, protocol_id: str) -> None:
     report = _report(client, protocol_id)
     assert report.scenario is None
