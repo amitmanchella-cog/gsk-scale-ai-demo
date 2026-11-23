@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import UTC
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Query, Response
@@ -32,7 +33,9 @@ async def get_report(
     ranked = similar_trials(design, benchmark, DEFAULT_SIMILAR)
     context = Context(design=design, similar=[trial for trial, _ in ranked], benchmark=benchmark)
     try:
-        report = build_report(record.id, record.document, record.created_at, context, ranked, accept)
+        # SQLite drops the time zone; stored values are always UTC.
+        created_at = record.created_at.replace(tzinfo=UTC)
+        report = build_report(record.id, record.document, created_at, context, ranked, accept)
     except (ChangeError, ForecastError) as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
     if format == "json":

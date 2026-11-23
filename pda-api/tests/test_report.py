@@ -191,3 +191,9 @@ def test_report_shows_the_population_summary(client: TestClient, protocol_id: st
     assert summary
     html = client.get(f"/api/protocols/{protocol_id}/report").text
     assert f"<td>Population</td><td>{summary}</td>" in html
+
+
+def test_json_upload_time_is_utc_like_the_protocol_response(client: TestClient, protocol_id: str) -> None:
+    created_at = client.get(f"/api/protocols/{protocol_id}/report", params={"format": "json"}).json()["created_at"]
+    assert created_at.endswith(("Z", "+00:00"))
+    assert created_at == client.get(f"/api/protocols/{protocol_id}").json()["created_at"]
