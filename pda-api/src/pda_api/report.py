@@ -178,6 +178,7 @@ def blocks(report: Report) -> list[Block]:
                 ("Target enrollment", f"{design.target_enrollment:,}" if design.target_enrollment else "not found"),
                 ("Sites", str(design.site_count) if design.site_count else "not found"),
                 ("Planned countries", countries or "not found"),
+                ("Population", population.summary or "not found"),
                 ("Age", f"{num(population.min_age, 0)} to {num(population.max_age, 0)} years"),
                 ("Sex", population.sex),
                 ("Eligibility criteria", str(len(design.criteria))),

@@ -183,3 +183,11 @@ def test_forecast_text_names_the_percentile_fallback(client: TestClient, protoco
     ]
     assert any("drawn from the indication and phase percentiles" in text for text in texts)
     assert not any("0 benchmark rates" in text for text in texts)
+
+
+def test_report_shows_the_population_summary(client: TestClient, protocol_id: str) -> None:
+    report = _report(client, protocol_id)
+    summary = report.design.population.summary
+    assert summary
+    html = client.get(f"/api/protocols/{protocol_id}/report").text
+    assert f"<td>Population</td><td>{summary}</td>" in html
