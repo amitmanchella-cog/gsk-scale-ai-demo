@@ -482,3 +482,13 @@ ul.pda-alert,
 .pda-whatif .pda-table-scroll {
   margin-top: 1rem;
 }
+
+a.pda-button {
+  text-decoration: none;
+}
+
+.pda-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}

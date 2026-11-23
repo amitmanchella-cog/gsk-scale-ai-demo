@@ -59,8 +59,9 @@ npx playwright show-report
   iPhone 14 device profile, for the mobile layout).
 - Video, trace and a screenshot are recorded for every test. Results land in `test-results/` and
   the HTML report in `playwright-report/`.
-- The journey test also saves `forecast.png` and `suggestions.png` per engine, so the forecast and
-  what-if panels can be compared across engines.
+- The journey test also saves `forecast.png`, `suggestions.png` and `export.png` per engine, so the
+  panels can be compared across engines, and keeps the downloaded `design-review.html` and
+  `design-review.pdf`.
 - `e2e/author-journey.spec.ts` walks the weak sample protocol; `e2e/resilience.spec.ts` blocks the
   remote's `remoteEntry.js` and checks that the shell still renders.
 

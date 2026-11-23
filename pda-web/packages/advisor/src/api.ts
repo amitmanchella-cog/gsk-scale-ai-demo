@@ -68,3 +68,12 @@ export const api = {
       body: JSON.stringify({ changes }),
     }),
 };
+
+export type ReportFormat = 'html' | 'pdf';
+
+/** Download link of the design-review report; `accept` holds the IDs of the accepted suggestions. */
+export function reportUrl(id: string, format: ReportFormat, accept: string[]): string {
+  const query = new URLSearchParams({ format });
+  for (const suggestion of accept) query.append('accept', suggestion);
+  return `/api/protocols/${id}/report?${query}`;
+}

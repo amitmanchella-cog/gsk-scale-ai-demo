@@ -1,8 +1,9 @@
+import { readFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 import { expectNoHorizontalOverflow, uploadProtocol } from './fixtures';
 
 test.describe('author journey on the weak sample protocol', () => {
-  test('upload, design, red flags, forecast, suggestions and what-if', async ({ page }, testInfo) => {
+  test('upload, design, red flags, forecast, suggestions, what-if and report export', async ({ page }, testInfo) => {
     await uploadProtocol(page);
 
     await test.step('extracted design', async () => {
@@ -89,11 +90,55 @@ test.describe('author journey on the weak sample protocol', () => {
       expect(Number(await page.getByTestId('what-if-seconds').innerText())).toBeLessThan(5);
       expect(Number((await page.getByTestId('what-if-p50-saved').innerText()).replaceAll(',', ''))).toBeLessThan(0);
       // Kept with the other artifacts so a reviewer can compare the panel across engines.
-      for (const section of ['forecast', 'suggestions']) {
+      for (const section of ['forecast', 'suggestions', 'export']) {
         const path = testInfo.outputPath(`${section}.png`);
         await page.getByTestId(section).screenshot({ path });
         await testInfo.attach(section, { path, contentType: 'image/png' });
       }
+    });
+
+    await test.step('the exported report contains the accepted changes and their cited trials', async () => {
+      const accepted: { title: string; cited: string[] }[] = [];
+      for (const suggestion of await page.locator('[data-testid="suggestion"]:has(input:checked)').all()) {
+        accepted.push({
+          title: await suggestion.getByTestId('suggestion-title').innerText(),
+          cited: await suggestion.getByTestId('citation').allTextContents(),
+        });
+      }
+      expect(accepted).toHaveLength(2);
+      const scenarioP50 = await page.getByTestId('what-if-p50').innerText();
+      await expect(page.getByTestId('export-summary')).toContainText('2 accepted changes');
+
+      const [htmlDownload] = await Promise.all([
+        page.waitForEvent('download'),
+        page.getByTestId('export-html').click(),
+      ]);
+      expect(htmlDownload.suggestedFilename()).toMatch(/^design-review-.+\.html$/);
+      const htmlPath = testInfo.outputPath('design-review.html');
+      await htmlDownload.saveAs(htmlPath);
+      const html = await readFile(htmlPath, 'utf8');
+      expect(html).toContain('4. Accepted changes');
+      // Each change's trials are looked for under that change's own heading, not in the whole report.
+      for (const { title, cited } of accepted) {
+        const start = html.indexOf(`${title}</h3>`);
+        expect(start).toBeGreaterThan(html.indexOf('4. Accepted changes'));
+        const change = html.slice(start, html.indexOf('<h', start + title.length + 5));
+        expect(cited.length).toBeGreaterThanOrEqual(5);
+        expect(change).toContain(`Cited benchmark trials (${cited.length})`);
+        for (const id of cited) expect(change).toContain(`>${id}</a>`);
+      }
+      expect(html).toContain('With accepted changes');
+      expect(html).toContain(`<td>${scenarioP50}</td>`);
+      await testInfo.attach('design-review.html', { path: htmlPath, contentType: 'text/html' });
+
+      const [pdfDownload] = await Promise.all([page.waitForEvent('download'), page.getByTestId('export-pdf').click()]);
+      expect(pdfDownload.suggestedFilename()).toMatch(/^design-review-.+\.pdf$/);
+      const pdfPath = testInfo.outputPath('design-review.pdf');
+      await pdfDownload.saveAs(pdfPath);
+      const pdf = await readFile(pdfPath);
+      expect(pdf.subarray(0, 5).toString()).toBe('%PDF-');
+      expect(pdf.length).toBeGreaterThan(10_000);
+      await testInfo.attach('design-review.pdf', { path: pdfPath, contentType: 'application/pdf' });
     });
 
     await test.step('competing recruiting trials per planned country', async () => {
