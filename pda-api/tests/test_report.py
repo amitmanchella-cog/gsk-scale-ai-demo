@@ -1,12 +1,13 @@
 from __future__ import annotations
 
+import asyncio
 from io import BytesIO
 
 import pytest
 from fastapi.testclient import TestClient
 from pypdf import PdfReader
 
-from pda_api.report import Grid, blocks, num, pct, render_html
+from pda_api.report import Grid, Text, blocks, num, pct, render_html
 from pda_api.schemas import Report
 from tests.conftest import WEAK, sample_text, upload
 from tests.test_privacy import person_values
@@ -112,6 +113,16 @@ def test_html_is_self_contained_and_escapes_text(client: TestClient, protocol_id
     assert html.startswith("<!doctype html>")
 
 
+def test_draft_only_report_does_not_build_suggestions(
+    client: TestClient, protocol_id: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    def fail(context: object) -> None:
+        raise AssertionError("suggest() was called for a report without accepted changes")
+
+    monkeypatch.setattr("pda_api.report.suggest", fail)
+    assert _report(client, protocol_id).accepted_changes == []
+
+
 def test_report_without_accepted_changes(client: TestClient, protocol_id: str) -> None:
     report = _report(client, protocol_id)
     assert report.scenario is None
@@ -173,3 +184,63 @@ def test_pdf_splits_a_row_taller_than_a_page(client: TestClient) -> None:
     assert response.content.startswith(b"%PDF")
     # The repeated table header lands inside a sentence at each page break, so count one word.
     assert _pdf_text(response.content).count("documented") == 400
+
+
+def test_forecast_text_names_the_percentile_fallback(client: TestClient, protocol_id: str) -> None:
+    report = _report(client, protocol_id)
+    fallback = report.baseline.model_copy(update={"rate_source": "indication_phase_benchmark", "n_rates": 0})
+    texts = [
+        block.text for block in blocks(report.model_copy(update={"baseline": fallback})) if isinstance(block, Text)
+    ]
+    assert any("drawn from the indication and phase percentiles" in text for text in texts)
+    assert not any("0 benchmark rates" in text for text in texts)
+
+
+def test_report_shows_the_population_summary(client: TestClient, protocol_id: str) -> None:
+    report = _report(client, protocol_id)
+    summary = report.design.population.summary
+    assert summary
+    html = client.get(f"/api/protocols/{protocol_id}/report").text
+    assert f"<td>Population</td><td>{summary}</td>" in html
+
+
+def test_json_upload_time_is_utc_like_the_protocol_response(client: TestClient, protocol_id: str) -> None:
+    created_at = client.get(f"/api/protocols/{protocol_id}/report", params={"format": "json"}).json()["created_at"]
+    assert created_at.endswith(("Z", "+00:00"))
+    assert created_at == client.get(f"/api/protocols/{protocol_id}").json()["created_at"]
+
+
+@pytest.mark.parametrize("fmt", ["html", "pdf"])
+def test_report_is_built_and_rendered_off_the_event_loop(
+    client: TestClient, protocol_id: str, monkeypatch: pytest.MonkeyPatch, fmt: str
+) -> None:
+    import pda_api.routers.report as router
+
+    on_loop: dict[str, bool] = {}
+
+    def record(name: str) -> None:
+        original = getattr(router, name)
+
+        def wrapper(*args: object) -> object:
+            try:
+                asyncio.get_running_loop()
+                on_loop[name] = True
+            except RuntimeError:
+                on_loop[name] = False
+            return original(*args)
+
+        monkeypatch.setattr(router, name, wrapper)
+
+    record("build_report")
+    record(f"render_{fmt}")
+    assert client.get(f"/api/protocols/{protocol_id}/report", params={"format": fmt}).status_code == 200
+    assert on_loop == {"build_report": False, f"render_{fmt}": False}
+
+
+@pytest.mark.parametrize("fmt", ["html", "pdf"])
+def test_export_does_not_contain_the_full_protocol_id(client: TestClient, protocol_id: str, fmt: str) -> None:
+    response = client.get(f"/api/protocols/{protocol_id}/report", params={"format": fmt})
+    text = _pdf_text(response.content) if fmt == "pdf" else response.text
+    assert f"Reportreference:{protocol_id[:8]}." in "".join(text.split())
+    assert protocol_id not in text
+    assert protocol_id.encode() not in response.content

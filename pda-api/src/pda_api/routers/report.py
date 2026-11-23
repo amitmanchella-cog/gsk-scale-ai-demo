@@ -2,9 +2,11 @@
 
 from __future__ import annotations
 
+from datetime import UTC
 from typing import Annotated, Literal
 
 from fastapi import APIRouter, HTTPException, Query, Response
+from fastapi.concurrency import run_in_threadpool
 
 from pda_api.deps import BenchmarkDep, DesignDep, RecordDep, similar_trials
 from pda_api.forecast import ForecastError
@@ -32,7 +34,10 @@ async def get_report(
     ranked = similar_trials(design, benchmark, DEFAULT_SIMILAR)
     context = Context(design=design, similar=[trial for trial, _ in ranked], benchmark=benchmark)
     try:
-        report = build_report(record.id, record.document, record.created_at, context, ranked, accept)
+        # SQLite drops the time zone; stored values are always UTC.
+        created_at = record.created_at.replace(tzinfo=UTC)
+        # The simulations and the page layout are CPU-bound, so they run off the event loop.
+        report = await run_in_threadpool(build_report, record.id, record.document, created_at, context, ranked, accept)
     except (ChangeError, ForecastError) as error:
         raise HTTPException(status_code=422, detail=str(error)) from error
     if format == "json":
@@ -40,5 +45,7 @@ async def get_report(
     filename = f"design-review-{record.id[:8]}.{format}"
     headers = {"Content-Disposition": f'attachment; filename="{filename}"'}
     if format == "pdf":
-        return Response(render_pdf(report), media_type="application/pdf", headers=headers)
-    return Response(render_html(report), media_type="text/html; charset=utf-8", headers=headers)
+        return Response(await run_in_threadpool(render_pdf, report), media_type="application/pdf", headers=headers)
+    return Response(
+        await run_in_threadpool(render_html, report), media_type="text/html; charset=utf-8", headers=headers
+    )

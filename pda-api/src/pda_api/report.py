@@ -76,9 +76,9 @@ def build_report(
         similar_trials=[to_schema(trial, similarity) for trial, similarity in ranked],
     )
     baseline = context.baseline
-    suggestions, _ = suggest(context)
-    by_id = {suggestion.id: suggestion for suggestion in suggestions}
     wanted = list(dict.fromkeys(accept or []))
+    # Suggestions cost several simulations each, so they are only built when a change was accepted.
+    by_id = {suggestion.id: suggestion for suggestion in suggest(context)[0]} if wanted else {}
     unknown = [identifier for identifier in wanted if identifier not in by_id]
     if unknown:
         raise ChangeError(f"Not a validated suggestion for this protocol: {', '.join(unknown)}")
@@ -149,6 +149,12 @@ def _forecast_grid(baseline: Forecast, scenario: Forecast | None) -> Grid:
     )
 
 
+def _rate_source(forecast: Forecast) -> str:
+    if forecast.rate_source == "similar_trials":
+        return f"{forecast.n_rates} benchmark rates"
+    return "the indication and phase percentiles, because too few similar trials report a usable rate"
+
+
 def blocks(report: Report) -> list[Block]:
     design, assessment, baseline = report.design, report.assessment, report.baseline
     risk = baseline.termination_risk
@@ -159,7 +165,8 @@ def blocks(report: Report) -> list[Block]:
     out: list[Block] = [
         Heading(f"Design review: {design.title or report.document}", level=1),
         Text(
-            f"Source document: {report.document}. Protocol ID: {report.protocol_id}. "
+            # The full ID is the only key to the stored draft, so a shared export shows a short reference.
+            f"Source document: {report.document}. Report reference: {report.protocol_id[:8]}. "
             f"Uploaded {report.created_at:%Y-%m-%d %H:%M} UTC."
         ),
         Text(DISCLAIMER),
@@ -172,6 +179,7 @@ def blocks(report: Report) -> list[Block]:
                 ("Target enrollment", f"{design.target_enrollment:,}" if design.target_enrollment else "not found"),
                 ("Sites", str(design.site_count) if design.site_count else "not found"),
                 ("Planned countries", countries or "not found"),
+                ("Population", population.summary or "not found"),
                 ("Age", f"{num(population.min_age, 0)} to {num(population.max_age, 0)} years"),
                 ("Sex", population.sex),
                 ("Eligibility criteria", str(len(design.criteria))),
@@ -201,7 +209,7 @@ def blocks(report: Report) -> list[Block]:
         Heading("3. Enrollment forecast and termination risk"),
         Text(
             f"Months to enroll {baseline.target_enrollment:,} patients, from {baseline.simulations:,} simulations with "
-            f"seed {baseline.seed}. Per-site accrual is drawn from {baseline.n_rates} benchmark rates "
+            f"seed {baseline.seed}. Per-site accrual is drawn from {_rate_source(baseline)} "
             f"(median {num(baseline.median_benchmark_rate, 2)} patients per site per month)."
         ),
         _forecast_grid(baseline, report.scenario),
