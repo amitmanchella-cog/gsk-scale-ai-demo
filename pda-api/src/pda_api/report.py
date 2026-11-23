@@ -273,9 +273,16 @@ def render_html(report: Report) -> str:
     )
 
 
+_ASCII_OPERATORS = str.maketrans({"≥": ">=", "≤": "<=", "≠": "!=", "≈": "~", "−": "-"})
+
+
 def _latin(text: str) -> str:
-    """The built-in PDF fonts cover Windows-1252 only; other characters print as '?'."""
-    return escape(text.encode("cp1252", "replace").decode("cp1252"), quote=False)
+    """The built-in PDF fonts cover Windows-1252 only.
+
+    Comparison operators are spelled out in ASCII so a threshold keeps its direction; any other
+    character outside Windows-1252 prints as '?'.
+    """
+    return escape(text.translate(_ASCII_OPERATORS).encode("cp1252", "replace").decode("cp1252"), quote=False)
 
 
 def render_pdf(report: Report) -> bytes:

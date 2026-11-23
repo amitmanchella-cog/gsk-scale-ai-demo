@@ -8,7 +8,7 @@ from pypdf import PdfReader
 
 from pda_api.report import Grid, blocks, num, pct, render_html
 from pda_api.schemas import Report
-from tests.conftest import upload
+from tests.conftest import WEAK, sample_text, upload
 from tests.test_privacy import person_values
 
 
@@ -143,3 +143,23 @@ def test_unknown_protocol_and_format(client: TestClient, protocol_id: str) -> No
 def test_report_contains_no_person_level_data(client: TestClient, protocol_id: str, accepted: list[str]) -> None:
     html = client.get(f"/api/protocols/{protocol_id}/report", params={"accept": accepted}).text
     assert person_values(html) == []
+
+
+def _upload_with_criterion(client: TestClient, criterion: str) -> str:
+    text = sample_text(WEAK)
+    original = "4. BMI between 27 and 32 kg/m2."
+    assert original in text
+    response = client.post(
+        "/api/protocols",
+        files={"file": ("draft.txt", text.replace(original, f"4. {criterion}"), "text/plain")},
+    )
+    assert response.status_code == 201, response.text
+    protocol_id: str = response.json()["id"]
+    return protocol_id
+
+
+def test_pdf_keeps_the_direction_of_comparison_operators(client: TestClient) -> None:
+    protocol_id = _upload_with_criterion(client, "Fasting C-peptide ≥ 0.8 ng/mL and eGFR ≤ 90 at screening.")
+    response = client.get(f"/api/protocols/{protocol_id}/report", params={"format": "pdf"})
+    assert response.status_code == 200, response.text
+    assert "FastingC-peptide>=0.8ng/mLandeGFR<=90atscreening." in _pdf_text(response.content)

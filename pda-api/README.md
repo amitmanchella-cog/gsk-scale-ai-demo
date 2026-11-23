@@ -97,8 +97,9 @@ that fail, or that do not shorten the forecast, are not returned.
 - Changes are accepted by suggestion ID, so a report can only contain changes that passed the
   evidence validator. An unknown ID returns 422.
 - The HTML is one file with inline styles, no scripts and no external assets. The PDF is drawn
-  with ReportLab and its built-in fonts, which cover Windows-1252; any other character in a
-  trial title prints as `?`.
+  with ReportLab and its built-in fonts, which cover Windows-1252. `≥`, `≤`, `≠`, `≈` and `−`
+  are written as `>=`, `<=`, `!=`, `~` and `-`; any other character outside Windows-1252 prints
+  as `?`.
 - The report is generated on request and not stored.
 
 ## Configuration
