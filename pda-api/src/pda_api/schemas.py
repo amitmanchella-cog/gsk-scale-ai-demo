@@ -225,3 +225,21 @@ class WhatIf(BaseModel):
     p50_months_saved: float
     p90_months_saved: float
     elapsed_ms: float
+
+
+class CitedTrial(BaseModel):
+    nct_id: str
+    title: str | None
+    cited_for: list[str] = Field(description="What the trial is evidence for in the report")
+
+
+class Report(BaseModel):
+    protocol_id: str
+    document: str
+    created_at: datetime
+    design: ProtocolDesign
+    assessment: Assessment
+    baseline: Forecast
+    scenario: Forecast | None = Field(description="Forecast with the accepted changes; null when none was accepted")
+    accepted_changes: list[Suggestion]
+    cited_trials: list[CitedTrial]

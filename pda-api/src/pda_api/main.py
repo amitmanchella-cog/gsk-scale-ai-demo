@@ -12,7 +12,7 @@ from pda_api import __version__
 from pda_api.benchmark import load_benchmark
 from pda_api.config import Settings
 from pda_api.db import create_schema, make_engine, make_session_factory
-from pda_api.routers import assessment, forecast, protocols
+from pda_api.routers import assessment, forecast, protocols, report
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -53,7 +53,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
             "benchmark_trials": len(benchmark.trials),
         }
 
-    for router in (protocols.router, assessment.router, forecast.router):
+    for router in (protocols.router, assessment.router, forecast.router, report.router):
         app.include_router(router, prefix="/api")
     return app
 
