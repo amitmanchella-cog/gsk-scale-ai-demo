@@ -312,7 +312,13 @@ def render_pdf(report: Report) -> bytes:
             widths = block.widths or tuple(1.0 for _ in block.headers)
             data = [[Paragraph(_latin(text), head) for text in block.headers]]
             data += [[Paragraph(_latin(text), cell) for text in row] for row in block.rows]
-            table = Table(data, colWidths=[doc.width * width / sum(widths) for width in widths], repeatRows=1)
+            # splitInRow lets a row taller than a page continue on the next one.
+            table = Table(
+                data,
+                colWidths=[doc.width * width / sum(widths) for width in widths],
+                repeatRows=1,
+                splitInRow=1,
+            )
             table.setStyle(
                 TableStyle(
                     [

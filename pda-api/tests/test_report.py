@@ -163,3 +163,13 @@ def test_pdf_keeps_the_direction_of_comparison_operators(client: TestClient) -> 
     response = client.get(f"/api/protocols/{protocol_id}/report", params={"format": "pdf"})
     assert response.status_code == 200, response.text
     assert "FastingC-peptide>=0.8ng/mLandeGFR<=90atscreening." in _pdf_text(response.content)
+
+
+def test_pdf_splits_a_row_taller_than_a_page(client: TestClient) -> None:
+    sentence = "Participants must have documented stable disease on two visits. "
+    protocol_id = _upload_with_criterion(client, (sentence * 400).strip())
+    response = client.get(f"/api/protocols/{protocol_id}/report", params={"format": "pdf"})
+    assert response.status_code == 200, response.text
+    assert response.content.startswith(b"%PDF")
+    # The repeated table header lands inside a sentence at each page break, so count one word.
+    assert _pdf_text(response.content).count("documented") == 400
